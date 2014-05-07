@@ -1,4 +1,5 @@
-degree-6671-tp-1c2014
-=====================
+66.71 - Sistemas Gráficos - 1er cuatrimestre 2014
 
-Repositorio del proyecto práctico de la materia "66.71 - Sistemas Gráficos" cursada el primer cuatrimestre de 2014 para la carrera de Ingeniería en Informática de la FIUBA
+Este repositorio contiene el proyecto realizado en la materia (66.71) Sistemas
+Gráficos durante el 1er cuatrimestre de 2014 en la FIUBA.
+
