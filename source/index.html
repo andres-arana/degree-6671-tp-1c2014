@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>66.71 - Sistemas Gráficos</title>
+  <link rel="stylesheet" href="stylesheets/normalize.css">
+  <link rel="stylesheet" href="stylesheets/main.css">
+</head>
+<body>
+  <div id="canvas-container">
+    <canvas id="main-canvas" width="640" height="480"></canvas>
+  </div>
+  <div id="info-container">
+    <h1>(66.71) Sistemas Gráficos</h1>
+    <h2>Trabajo Práctico 1</h2>
+    <h3>Andrés Arana, P. 86.203</h3>
+  </div>
+
+  <script src="libraries/glmatrix.min.js"></script>
+  <script src="javascripts/scene.js"></script>
+  <script src="javascripts/clock.js"></script>
+  <script src="javascripts/application.js"></script>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      var canvas = document.getElementById("main-canvas");
+      var application = new sg.Application(canvas);
+      application.run();
+    });
+  </script>
+</body>
+</html>
