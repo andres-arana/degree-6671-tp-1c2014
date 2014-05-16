@@ -17,8 +17,6 @@ sg.cameras.Static = function(context) {
     0.1,
     100.0
   );
-
-  this.angle = 0;
 };
 
 sg.cameras.Static.prototype.getProjection = function() {
@@ -32,3 +30,7 @@ sg.cameras.Static.prototype.getView = function() {
 sg.cameras.Static.prototype.tick = function(delta) {
 
 }
+
+sg.cameras.Static.prototype.onMouseInput = function(deltaX, deltaY) {
+
+};

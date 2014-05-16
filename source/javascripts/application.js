@@ -15,3 +15,7 @@ sg.Application.prototype.run = function() {
   this.scene.draw();
   this.scene.tick(this.clock.tick());
 };
+
+sg.Application.prototype.onMouseMovement = function(event) {
+  this.scene.onMouseMovement(event);
+};

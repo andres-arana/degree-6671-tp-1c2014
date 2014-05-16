@@ -2,7 +2,7 @@ var sg = sg || {};
 
 sg.Scene = function(context) {
   this.context = context;
-  this.camera = new sg.cameras.Static(this.context);
+  this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 10);
   this.object = new sg.objects.Triangle(this.context);
   this.gl = this.context.gl;
 
@@ -21,18 +21,21 @@ sg.Scene.prototype.draw = function() {
   this.context.shaders.basic.setViewMatrix(this.camera.getView());
 
   var modelMatrix = mat4.create();
-  mat4.rotateX(modelMatrix, modelMatrix, this.angle);
-  this.context.shaders.basic.setColor(vec4.fromValues(1.0, 0.5, 1.0, 1.0));
+  this.context.shaders.basic.setColor(vec4.fromValues(1.0, 1.0, 1.0, 1.0));
+  this.object.draw(modelMatrix);
+
+  mat4.translate(modelMatrix, modelMatrix, vec3.fromValues(3, 0, 0));
+  mat4.rotateX(modelMatrix, modelMatrix, Math.PI / 4);
+
+  this.context.shaders.basic.setColor(vec4.fromValues(1.0, 1.0, 0.5, 1.0));
   this.object.draw(modelMatrix);
 };
 
 sg.Scene.prototype.tick = function(delta) {
   this.camera.tick(delta);
+};
 
-  this.angle += 0.001 * delta;
-
-  if (this.angle >= Math.PI * 2) {
-    this.angle -= Math.PI * 2;
-  }
+sg.Scene.prototype.onMouseMovement = function(event) {
+  this.camera.onMouseInput(event.movementX, event.movementY);
 };
 

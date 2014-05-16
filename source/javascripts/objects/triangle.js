@@ -6,9 +6,9 @@ sg.objects.Triangle = function(context) {
   this.gl = context.gl;
 
   var vertices = [
-    -1, 1, 0,
-    1, 1, 0,
-    -1, -1, 0,
+    0, -1, 1,
+    0, 1, 1,
+    0, -1, -1,
   ];
 
   this.vertexBuffer = this.gl.createBuffer();
