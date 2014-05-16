@@ -7,10 +7,10 @@ sg.Application = function(canvas) {
 };
 
 sg.Application.prototype.run = function() {
-  var instance = this;
-  window.requestAnimationFrame(function() {
-    instance.run();
-  });
+  // var instance = this;
+  // window.requestAnimationFrame(function() {
+  //   instance.run();
+  // });
 
   this.scene.draw();
   this.scene.tick(this.clock.tick());
