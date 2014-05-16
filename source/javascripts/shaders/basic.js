@@ -27,6 +27,7 @@ sg.shaders.Basic = function(gl) {
   this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
   this.viewUniform = this.gl.getUniformLocation(program, "viewMatrix");
   this.modelUniform = this.gl.getUniformLocation(program, "modelMatrix");
+  this.colorUniform = this.gl.getUniformLocation(program, "color");
 
   this.shader = program;
 };
@@ -46,6 +47,10 @@ sg.shaders.Basic.prototype.setViewMatrix = function(m) {
 sg.shaders.Basic.prototype.setModelMatrix = function(m) {
   this.gl.uniformMatrix4fv(this.modelUniform, false, m);
 };
+
+sg.shaders.Basic.prototype.setColor = function(color) {
+  this.gl.uniform4fv(this.colorUniform, color);
+}
 
 sg.shaders.Basic.prototype.getPositionAttribute = function() {
   return this.shader.positionAttribute;
@@ -68,8 +73,10 @@ sg.shaders.Basic.prototype.getFragmentSource = function() {
   return "\
   precision mediump float;\
 \
+  varying vec4 f_color;\
+\
   void main(void) {\
-    gl_FragColor = vec4(0.5, 0.5, 1.0, 1.0);\
+    gl_FragColor = f_color;\
   }\
   ";
 };
@@ -81,9 +88,13 @@ sg.shaders.Basic.prototype.getVertexSource = function() {
   uniform mat4 projectionMatrix;\
   uniform mat4 viewMatrix;\
   uniform mat4 modelMatrix;\
+  uniform vec4 color;\
+\
+  varying vec4 f_color;\
 \
   void main(void) {\
     gl_Position = projectionMatrix * viewMatrix * modelMatrix * vec4(position, 1.0);\
+    f_color = color;\
   }\
   ";
 };

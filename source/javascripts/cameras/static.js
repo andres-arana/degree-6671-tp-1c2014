@@ -17,6 +17,8 @@ sg.cameras.Static = function(context) {
     0.1,
     100.0
   );
+
+  this.angle = 0;
 };
 
 sg.cameras.Static.prototype.getProjection = function() {

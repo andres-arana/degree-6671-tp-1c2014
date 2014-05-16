@@ -7,9 +7,8 @@ sg.objects.Triangle = function(context) {
 
   var vertices = [
     -1, 1, 0,
-    -1, -1, 0,
     1, 1, 0,
-    1, -1, 0
+    -1, -1, 0,
   ];
 
   this.vertexBuffer = this.gl.createBuffer();
@@ -20,7 +19,7 @@ sg.objects.Triangle = function(context) {
     this.gl.STATIC_DRAW);
 
   var indices = [
-    0, 1, 2
+    0, 2, 1
   ];
 
   this.indicesBuffer = this.gl.createBuffer();
@@ -41,5 +40,5 @@ sg.objects.Triangle.prototype.draw = function(m) {
   this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
 
   this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
-  this.gl.drawElements(this.gl.TRIANGLES, this.indicesBuffer.items, this.gl.UNSIGNED_SHORT, 0);
+  this.gl.drawElements(this.gl.TRIANGLE_STRIP, this.indicesBuffer.items, this.gl.UNSIGNED_SHORT, 0);
 };
