@@ -5,6 +5,7 @@ sg.Scene = function(context, heightmap) {
   this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 50);
   this.terrain = new sg.geometries.Terrain(this.context, heightmap);
   this.water = new sg.geometries.Water(this.context, 6);
+  this.cylinder = new sg.geometries.Cylinder(this.context, 8, 4);
   this.gl = this.context.gl;
 
   this.gl.enable(this.gl.DEPTH_TEST);

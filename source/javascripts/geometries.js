@@ -42,6 +42,35 @@ sg.geometries = sg.geometries || {};
     return buildIndexBuffer(gl, indices);
   };
 
+  function buildClosedTriangularMeshIndices(gl, w, h) {
+    var indices = [];
+    for (var i = 0; i < h - 1; i++) {
+      for (var j = 0; j < w; j++) {
+        indices.push(i * w + j);
+        indices.push((i + 1) * w + j);
+      }
+      indices.push(i * w);
+    }
+    indices.push((h - 1) * w);
+
+    return buildIndexBuffer(gl, indices);
+  };
+
+  function drawWithTriangleStrips(m) {
+    this.context.shaders.basic.setModelMatrix(m);
+
+    var attribute = this.context.shaders.basic.getPositionAttribute();
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.drawElements(
+      this.gl.TRIANGLE_STRIP,
+      this.indexBuffer.items,
+      this.gl.UNSIGNED_SHORT,
+      0);
+  };
 
   sg.geometries.Terrain = function(context, heightmap) {
     var pictureWidth = 200;
@@ -87,21 +116,7 @@ sg.geometries = sg.geometries || {};
       this.gl, pictureWidth, pictureHeight);
   };
 
-  sg.geometries.Terrain.prototype.draw = function(m) {
-    this.context.shaders.basic.setModelMatrix(m);
-
-    var attribute = this.context.shaders.basic.getPositionAttribute();
-
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
-
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    this.gl.drawElements(
-      this.gl.TRIANGLE_STRIP,
-      this.indexBuffer.items,
-      this.gl.UNSIGNED_SHORT,
-      0);
-  };
+  sg.geometries.Terrain.prototype.draw = drawWithTriangleStrips;
 
   sg.geometries.Water = function(context, level) {
     this.context = context;
@@ -123,20 +138,42 @@ sg.geometries = sg.geometries || {};
     this.indexBuffer =  buildIndexBuffer(this.gl, indices);
   };
 
-  sg.geometries.Water.prototype.draw = function(m) {
-    this.context.shaders.basic.setModelMatrix(m);
+  sg.geometries.Water.prototype.draw = drawWithTriangleStrips;
 
-    var attribute = this.context.shaders.basic.getPositionAttribute();
+  sg.geometries.Cylinder = function(context, r, l) {
+    this.context = context;
+    this.gl = context.gl;
 
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+    vertices = [];
+    for (var i = 0; i < r; i++) {
+      vertices.push(0);
+      vertices.push(0);
+      vertices.push(0);
+    }
 
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    this.gl.drawElements(
-      this.gl.TRIANGLE_STRIP,
-      this.indexBuffer.items,
-      this.gl.UNSIGNED_SHORT,
-      0);
+    var radialDelta = 2 * Math.PI / r;
+    var longDelta = 1 / (l - 1);
+    for (var i = 0; i < l; i++) {
+      for (var j = 0; j < r; j++) {
+        var alfa = radialDelta * j;
+        vertices.push(Math.cos(alfa));
+        vertices.push(Math.sin(alfa));
+        vertices.push(longDelta * i);
+      }
+    }
+
+    for (var i = 0; i < r; i++) {
+      vertices.push(0);
+      vertices.push(0);
+      vertices.push(1);
+    }
+
+    // Build buffers
+   this.vertexBuffer = buildVertexBuffer(this.gl, vertices);
+   this.indexBuffer = buildClosedTriangularMeshIndices(
+     this.gl, r, l + 2);
   };
+
+  sg.geometries.Cylinder.prototype.draw = drawWithTriangleStrips;
 
 })();
