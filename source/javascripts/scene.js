@@ -5,6 +5,7 @@ sg.Scene = function(context, heightmap) {
   this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 50);
   this.terrain = new sg.geometries.Terrain(this.context, heightmap);
   this.water = new sg.geometries.Water(this.context, 6);
+  this.arc = new sg.geometries.Arc(this.context, 16, 4, 1);
   this.gl = this.context.gl;
 
   this.gl.enable(this.gl.DEPTH_TEST);
@@ -22,12 +23,15 @@ sg.Scene.prototype.draw = function() {
   this.context.shaders.basic.setViewMatrix(this.camera.getView());
 
   var modelMatrix = mat4.create();
-  mat4.translate(modelMatrix, modelMatrix, vec3.fromValues(0, 0, -20));
-  this.context.shaders.basic.setColor(vec4.fromValues(0.4, 0.8, 0.2, 1.0));
-  this.terrain.draw(modelMatrix);
+  // mat4.translate(modelMatrix, modelMatrix, vec3.fromValues(0, 0, -20));
+  // this.context.shaders.basic.setColor(vec4.fromValues(0.4, 0.8, 0.2, 1.0));
+  // this.terrain.draw(modelMatrix);
 
-  this.context.shaders.basic.setColor(vec4.fromValues(0.2, 0.4, 0.8, 0.5));
-  this.water.draw(modelMatrix);
+  // this.context.shaders.basic.setColor(vec4.fromValues(0.2, 0.4, 0.8, 0.5));
+  // this.water.draw(modelMatrix);
+  mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(10, 20, 1));
+  this.context.shaders.basic.setColor(vec4.fromValues(0.4, 0.8, 0.2, 1.0));
+  this.arc.draw(modelMatrix);
 };
 
 sg.Scene.prototype.tick = function(delta) {

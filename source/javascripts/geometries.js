@@ -280,4 +280,67 @@ sg.geometries = sg.geometries || {};
 
   sg.geometries.TriangularBox.prototype.draw = drawWithTriangles;
 
+  sg.geometries.Arc = function(context, r, l, t) {
+    this.context = context;
+    this.gl = context.gl;
+
+    // Precalculate data for each angle
+    var delta = Math.PI / (r - 1);
+    var precalculatedZ = [];
+    var precalculatedX = [];
+    for (var i = 0; i < r; i++) {
+      precalculatedZ.push(Math.sin(i * delta));
+      precalculatedX.push(Math.cos(i * delta));
+    }
+
+    var vertices = [];
+    // Add front face degenerate vertices
+    for (var i = 0; i < r; i++) {
+      vertices.push(precalculatedX[i]);
+      vertices.push(0);
+      vertices.push(precalculatedZ[i] - t / 2);
+    }
+
+    for (var i = r - 1 ; i >= 0; i--) {
+      vertices.push(precalculatedX[i]);
+      vertices.push(0);
+      vertices.push(precalculatedZ[i] - t / 2);
+    }
+
+    // Add arc vertices
+    var deltaLongitude = 1 / (l - 1);
+    for (var j = 0; j < l; j++) {
+      for (var i = 0; i < r; i++) {
+        vertices.push(precalculatedX[i]);
+        vertices.push(j * deltaLongitude);
+        vertices.push(precalculatedZ[i]);
+      }
+
+      for (var i = r - 1; i >= 0; i--) {
+        vertices.push(precalculatedX[i]);
+        vertices.push(j * deltaLongitude);
+        vertices.push(precalculatedZ[i] - t);
+      }
+    }
+
+    // Add back face degenerate vertices
+    for (var i = 0; i < r; i++) {
+      vertices.push(precalculatedX[i]);
+      vertices.push(1);
+      vertices.push(precalculatedZ[i] - t / 2);
+    }
+
+    for (var i = r - 1 ; i >= 0; i--) {
+      vertices.push(precalculatedX[i]);
+      vertices.push(1);
+      vertices.push(precalculatedZ[i] - t / 2);
+    }
+
+    this.vertexBuffer = buildVertexBuffer(this.gl, vertices);
+
+    this.indexBuffer = buildClosedTriangularMeshIndices(this.gl, 2 * r, l + 2);
+  };
+
+  sg.geometries.Arc.prototype.draw = drawWithTriangleStrips;
+
 })();
