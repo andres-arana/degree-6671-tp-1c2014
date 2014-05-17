@@ -14,74 +14,24 @@
     <h1>(66.71) Sistemas Gráficos</h1>
     <h2>Trabajo Práctico 1</h2>
     <h3>Andrés Arana, P. 86.203</h3>
+
+  </div>
+  <div>
+    <img src="assets/heightmap.gif" class="image-data" id="heightmap">
   </div>
 
   <script src="libraries/glmatrix.min.js"></script>
   <script src="libraries/webgl-debug.js"></script>
-  <script src="javascripts/cameras/static.js"></script>
-  <script src="javascripts/cameras/rotating.js"></script>
-  <script src="javascripts/shaders/basic.js"></script>
-  <script src="javascripts/objects/triangle.js"></script>
+  <script src="libraries/imagesloaded.min.js"></script>
+
+  <script src="javascripts/cameras.js"></script>
+  <script src="javascripts/shaders.js"></script>
+  <script src="javascripts/geometries.js"></script>
   <script src="javascripts/context.js"></script>
   <script src="javascripts/scene.js"></script>
   <script src="javascripts/clock.js"></script>
   <script src="javascripts/application.js"></script>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      var canvas = document.getElementById("main-canvas");
-      var application = new sg.Application(canvas);
-
-      var canvasClicked = function() {
-      canvas.requestPointerLock =
-        canvas.requestPointerLock ||
-        canvas.mozRequestPointerLock ||
-        canvas.webkitRequestPointerLock;
-
-        canvas.requestPointerLock();
-      };
-
-      var mouseMoved = function(event) {
-        event.movementX = event.movementX ||
-          event.mozMovementX ||
-          event.webkitMovementX;
-
-        if (typeof event.movementX === 'undefined' || Math.abs(event.movementX) < 3 ) {
-          event.movementX = 0;
-        }
-
-        event.movementY = event.movementY ||
-          event.mozMovementY ||
-          event.webkitMovementY;
-
-        if (typeof event.movementY === 'undefined' || Math.abs(event.movementY) < 3 ) {
-          event.movementY = 0;
-        }
-
-        application.onMouseMovement(event);
-      };
-
-      var pointerLockChanged = function() {
-        if (
-          document.pointerLockElement === canvas ||
-          document.mozPointerLockElement === canvas ||
-          document.webkitPointerLockElement === canvas) {
-
-          document.addEventListener("mousemove", mouseMoved);
-
-        } else {
-          document.removeEventListener("mousemove", mouseMoved);
-        }
-      };
-
-      canvas.addEventListener("click", canvasClicked);
-      document.addEventListener("pointerlockchange", pointerLockChanged);
-      document.addEventListener("mozpointerlockchange", pointerLockChanged);
-      document.addEventListener("webkitpointerlockchange", pointerLockChanged);
-
-      application.run();
-    });
-
-  </script>
+  <script src="index.js"></script>
 </body>
 </html>

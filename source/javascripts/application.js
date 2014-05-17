@@ -1,8 +1,8 @@
 var sg = sg || {};
 
-sg.Application = function(canvas) {
+sg.Application = function(canvas, heightmap) {
   this.context = new sg.Context(canvas);
-  this.scene = new sg.Scene(this.context);
+  this.scene = new sg.Scene(this.context, heightmap);
   this.clock = new sg.Clock();
 };
 
