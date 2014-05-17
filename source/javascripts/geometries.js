@@ -103,4 +103,40 @@ sg.geometries = sg.geometries || {};
       0);
   };
 
+  sg.geometries.Water = function(context, level) {
+    this.context = context;
+    this.gl = context.gl;
+
+    vertices = [
+      -50, -50, level,
+      50, -50, level,
+      -50, 50, level,
+      50, 50, level
+    ];
+
+    this.vertexBuffer = buildVertexBuffer(this.gl, vertices);
+
+    indices = [
+      0, 1, 2, 3
+    ];
+
+    this.indexBuffer =  buildIndexBuffer(this.gl, indices);
+  };
+
+  sg.geometries.Water.prototype.draw = function(m) {
+    this.context.shaders.basic.setModelMatrix(m);
+
+    var attribute = this.context.shaders.basic.getPositionAttribute();
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.drawElements(
+      this.gl.TRIANGLE_STRIP,
+      this.indexBuffer.items,
+      this.gl.UNSIGNED_SHORT,
+      0);
+  };
+
 })();

@@ -4,6 +4,7 @@ sg.Scene = function(context, heightmap) {
   this.context = context;
   this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 50);
   this.terrain = new sg.geometries.Terrain(this.context, heightmap);
+  this.water = new sg.geometries.Water(this.context, 6);
   this.gl = this.context.gl;
 
   this.gl.enable(this.gl.DEPTH_TEST);
@@ -13,7 +14,7 @@ sg.Scene = function(context, heightmap) {
 
 sg.Scene.prototype.draw = function() {
   this.context.setGLViewport();
-  this.gl.clearColor(0.6, 0.6, 1.0, 1.0);
+  this.gl.clearColor(0.8, 0.8, 1.0, 1.0);
   this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
   this.context.shaders.basic.use();
@@ -21,9 +22,12 @@ sg.Scene.prototype.draw = function() {
   this.context.shaders.basic.setViewMatrix(this.camera.getView());
 
   var modelMatrix = mat4.create();
-  mat4.translate(modelMatrix, modelMatrix, vec3.fromValues(0, 0, -5));
+  mat4.translate(modelMatrix, modelMatrix, vec3.fromValues(0, 0, -20));
   this.context.shaders.basic.setColor(vec4.fromValues(0.4, 0.8, 0.2, 1.0));
   this.terrain.draw(modelMatrix);
+
+  this.context.shaders.basic.setColor(vec4.fromValues(0.2, 0.4, 0.8, 0.5));
+  this.water.draw(modelMatrix);
 };
 
 sg.Scene.prototype.tick = function(delta) {

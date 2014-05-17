@@ -46,7 +46,7 @@ sg.shaders = sg.shaders || {};
       \
       void main(void) {\
         vec4 eyeVertexCoords = viewMatrix * modelMatrix * vec4(position, 1.0);\
-        float distance = length(eyeVertexCoords) / 20.0;\
+        float distance = length(eyeVertexCoords) / 40.0;\
         gl_Position = projectionMatrix * eyeVertexCoords;\
         f_color = color / distance;\
         f_color.w = 1.0;\
