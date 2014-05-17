@@ -4,7 +4,7 @@
       event.mozMovementX ||
       event.webkitMovementX;
 
-    if (typeof event.movementX === 'undefined' || Math.abs(event.movementX) < 3 ) {
+    if (typeof event.movementX === 'undefined') {
       event.movementX = 0;
     }
 
@@ -12,7 +12,7 @@
       event.mozMovementY ||
       event.webkitMovementY;
 
-    if (typeof event.movementY === 'undefined' || Math.abs(event.movementY) < 3 ) {
+    if (typeof event.movementY === 'undefined') {
       event.movementY = 0;
     }
 
