@@ -44,8 +44,8 @@ sg.geometries = sg.geometries || {};
 
 
   sg.geometries.Terrain = function(context, heightmap) {
-    var pictureWidth = 128;
-    var pictureHeight = 128;
+    var pictureWidth = 200;
+    var pictureHeight = 200;
 
     this.context = context;
     this.gl = context.gl;
@@ -66,7 +66,7 @@ sg.geometries = sg.geometries || {};
 
     for (var i = 0, j = 0, len = pixels.length; i < len; i += 4, j++) {
       var total = pixels[i] + pixels[i + 1] + pixels[i + 2];
-      heightData[j] = total / 60;
+      heightData[j] = total / 30;
     }
 
     // Build triangle mesh
