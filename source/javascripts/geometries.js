@@ -159,7 +159,7 @@ sg.geometries = sg.geometries || {};
   sg.geometries.Cylinder = function(context, r, l) {
     this.context = context;
     this.gl = context.gl;
-    this.circle = new sg.curves.Circle(1);
+    this.circle = new sg.paths.Circle(1);
 
     vertices = [];
     for (var i = 0; i < r; i++) {

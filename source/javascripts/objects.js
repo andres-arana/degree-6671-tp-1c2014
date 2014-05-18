@@ -186,7 +186,73 @@ sg.objects = sg.objects || {};
     this.box.draw(m1);
   };
 
+  sg.objects.Track = function(context) {
+    this.context = context;
 
+    var profile = new sg.paths.BSpline(vec2, [
+      vec3.fromValues(-0.1, 0),
+      vec3.fromValues(-0.1, 0.2),
+      vec3.fromValues(-0.3, 0.2),
+      vec3.fromValues(-0.3, 0.3),
+      vec3.fromValues(0, 0.3),
+      vec3.fromValues(0.3, 0.3),
+      vec3.fromValues(0.3, 0.2),
+      vec3.fromValues(0.1, 0.2),
+      vec3.fromValues(0.1, 0),
+      vec3.fromValues(0.1, -0.2),
+      vec3.fromValues(0.3, -0.2),
+      vec3.fromValues(0.3, -0.3),
+      vec3.fromValues(0, -0.3),
+      vec3.fromValues(-0.3, -0.3),
+      vec3.fromValues(-0.3, -0.2),
+      vec3.fromValues(-0.1, -0.2),
+      vec3.fromValues(-0.1, 0),
+      vec3.fromValues(-0.1, 0.2),
+    ]);
+
+    this.path = new sg.paths.BSpline(vec3, [
+      vec3.fromValues(40, -20, 0),
+      vec3.fromValues(20, 35, 0),
+      vec3.fromValues(0, 30, 0),
+      vec3.fromValues(-20, 25, 0),
+      vec3.fromValues(-30, 0, 0),
+      vec3.fromValues(-40, -20, 0),
+      vec3.fromValues(-30, -45, 0),
+      vec3.fromValues(10, -30, 0),
+      vec3.fromValues(40, -20, 0),
+      vec3.fromValues(20, 35, 0),
+    ]);
+
+    var innerScale = 29/30;
+    var innerTransform = mat4.scale(
+      mat4.create(),
+      mat4.create(),
+      vec3.fromValues(innerScale, innerScale, 1));
+
+    this.innerTrack = new sg.geometries.Extrussion(
+      this.context,
+      profile,
+      this.path.transform(innerTransform),
+      32, 64);
+
+    var outerScale = 31/30;
+    var outerTransform = mat4.scale(
+      mat4.create(),
+      mat4.create(),
+      vec3.fromValues(outerScale, outerScale, 1));
+
+    this.outerTrack = new sg.geometries.Extrussion(
+      this.context,
+      profile,
+      this.path.transform(outerTransform),
+      32, 64);
+  };
+
+  sg.objects.Track.prototype.draw = function(m) {
+    this.context.shaders.basic.setColor(vec4.fromValues(0.5, 0.5, 0.8, 0.5));
+    this.innerTrack.draw(m);
+    this.outerTrack.draw(m);
+  };
 
 
 })();

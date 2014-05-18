@@ -3,6 +3,30 @@ sg.paths = sg.paths || {};
 
 (function() {
 
+  sg.paths.Circle = function(radius) {
+    this.radius = radius;
+  };
+
+  sg.paths.Circle.prototype.evaluate = function(t) {
+    return vec2.fromValues(
+      this.radius * Math.cos(t),
+      this.radius * Math.sin(t));
+  };
+
+  sg.paths.Circle.prototype.derivative = function(t) {
+    return vec2.fromValues(
+      this.radius * -Math.sin(t),
+      this.radius * Math.cos(t));
+  };
+
+  sg.paths.Circle.prototype.lowerDomainBound = function() {
+    return 0;
+  };
+
+  sg.paths.Circle.prototype.upperDomainBound = function() {
+    return 2 * Math.PI;
+  };
+
   sg.paths.Line = function(type, p0, p1) {
     this.type = type;
     this.p0 = p0;
@@ -59,6 +83,19 @@ sg.paths = sg.paths || {};
 
   sg.paths.BSpline.prototype.upperDomainBound = function() {
     return this.points.length - 2;
+  };
+
+  sg.paths.BSpline.prototype.transform = function(m) {
+    var result = [];
+    for (var i = 0; i < this.points.length; i++) {
+      var transformed = this.type.transformMat4(
+        this.type.create(),
+        this.points[i],
+        m);
+
+      result.push(transformed);
+    }
+    return new sg.paths.BSpline(this.type, result);
   };
 
 })();
