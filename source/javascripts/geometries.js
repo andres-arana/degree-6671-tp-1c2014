@@ -159,6 +159,7 @@ sg.geometries = sg.geometries || {};
   sg.geometries.Cylinder = function(context, r, l) {
     this.context = context;
     this.gl = context.gl;
+    this.circle = new sg.curves.Circle(1);
 
     vertices = [];
     for (var i = 0; i < r; i++) {
@@ -167,14 +168,14 @@ sg.geometries = sg.geometries || {};
       vertices.push(0);
     }
 
-    var radialDelta = 2 * Math.PI / r;
-    var longDelta = 1 / (l - 1);
+    var deltaT = (this.circle.upperDomainBound() - this.circle.lowerDomainBound()) / r;
+    var deltaL = 1 / (l - 1);
     for (var i = 0; i < l; i++) {
       for (var j = 0; j < r; j++) {
-        var alfa = radialDelta * j;
-        vertices.push(Math.cos(alfa));
-        vertices.push(Math.sin(alfa));
-        vertices.push(longDelta * i);
+        var v = this.circle.evaluate(deltaT * j);
+        vertices.push(v[0]);
+        vertices.push(v[1]);
+        vertices.push(deltaL * i);
       }
     }
 
@@ -342,5 +343,50 @@ sg.geometries = sg.geometries || {};
   };
 
   sg.geometries.Arc.prototype.draw = drawWithTriangleStrips;
+
+  sg.geometries.Extrussion = function(context, curve, path, r, l) {
+    this.context = context;
+    this.gl = context.gl;
+
+    var vertices = [];
+
+    var deltaT = (curve.upperDomainBound() - curve.lowerDomainBound()) / r;
+    var deltaL = (path.upperDomainBound() - path.lowerDomainBound()) / l;
+
+    var curveNormal = vec3.fromValues(0, 0, 1);
+
+    for (var i = 0; i <= l; i++) {
+      var location = path.evaluate(i * deltaL);
+      var rawDerivative = path.derivative(i * deltaL);
+      var derivative = vec3.normalize(vec3.create(), rawDerivative);
+
+      var rotationAxis = vec3.cross(
+        vec3.create(),
+        curveNormal,
+        derivative);
+
+      var rotationDegrees = Math.acos(vec3.dot(curveNormal, derivative));
+
+      var transformation = mat4.create();
+      mat4.translate(transformation, transformation, location);
+      mat4.rotate(transformation, transformation, rotationDegrees, rotationAxis);
+
+      for (var j = 0; j <= r; j++) {
+        var rawVertex = curve.evaluate(j * deltaT);
+        var vertex = vec4.fromValues(rawVertex[0], rawVertex[1], 0, 1);
+        vec4.transformMat4(vertex, vertex, transformation);
+
+        vertices.push(vertex[0]);
+        vertices.push(vertex[1]);
+        vertices.push(vertex[2]);
+      }
+    }
+
+    this.vertexBuffer = buildVertexBuffer(this.gl, vertices);
+
+    this.indexBuffer = buildOpenTriangularMeshIndices(this.gl, r + 1, l + 1);
+  };
+
+  sg.geometries.Extrussion.prototype.draw = drawWithTriangleStrips;
 
 })();
