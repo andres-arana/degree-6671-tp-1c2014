@@ -88,6 +88,10 @@ sg.geometries = sg.geometries || {};
       0);
   };
 
+  vec3.angleBetween = function(v1, v2) {
+    return Math.acos(vec3.dot(v1, v2));
+  };
+
   sg.geometries.Terrain = function(context, heightmap) {
     var pictureWidth = 200;
     var pictureHeight = 200;
@@ -357,23 +361,26 @@ sg.geometries = sg.geometries || {};
 
     for (var i = 0; i <= l; i++) {
       var location = path.evaluate(i * deltaL);
-      var rawDerivative = path.derivative(i * deltaL);
-      var derivative = vec3.normalize(vec3.create(), rawDerivative);
-
-      var rotationAxis = vec3.cross(
+      var derivative = vec3.normalize(
         vec3.create(),
-        curveNormal,
-        derivative);
+        path.derivative(i * deltaL));
 
-      var rotationDegrees = Math.acos(vec3.dot(curveNormal, derivative));
+      var projectionZY = vec3.fromValues(0, derivative[1], derivative[2]);
+      vec3.normalize(projectionZY, projectionZY);
+      var angleX = vec3.angleBetween(projectionZY, vec3.fromValues(0, 1, 0));
+
+      var projectionXY = vec3.fromValues(derivative[0], derivative[1], 0);
+      vec3.normalize(projectionXY, projectionXY);
+      var angleZ = vec3.angleBetween(projectionXY, vec3.fromValues(0, 1, 0));
 
       var transformation = mat4.create();
       mat4.translate(transformation, transformation, location);
-      mat4.rotate(transformation, transformation, rotationDegrees, rotationAxis);
+      mat4.rotateZ(transformation, transformation, angleZ);
+      mat4.rotateX(transformation, transformation, angleX);
 
       for (var j = 0; j <= r; j++) {
         var rawVertex = curve.evaluate(j * deltaT);
-        var vertex = vec4.fromValues(rawVertex[0], rawVertex[1], 0, 1);
+        var vertex = vec4.fromValues(rawVertex[0], 0, rawVertex[1], 1);
         vec4.transformMat4(vertex, vertex, transformation);
 
         vertices.push(vertex[0]);

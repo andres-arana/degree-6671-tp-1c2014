@@ -4,7 +4,7 @@ sg.Scene = function(context, heightmap) {
   this.context = context;
   this.gl = this.context.gl;
 
-  this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 50);
+  this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 55);
   this.terrain = new sg.objects.Terrain(this.context, heightmap);
   this.train = new sg.objects.Train(this.context);
   this.track = new sg.objects.Track(this.context);
@@ -22,7 +22,7 @@ sg.Scene.prototype.draw = function() {
   this.context.shaders.basic.setViewMatrix(this.camera.getView());
 
   var modelMatrix = mat4.create();
-  this.terrain.draw(modelMatrix);
+  // this.terrain.draw(modelMatrix);
 
   var trackMatrix = mat4.clone(modelMatrix);
   mat4.translate(trackMatrix, trackMatrix, vec3.fromValues(0, 0, -12));

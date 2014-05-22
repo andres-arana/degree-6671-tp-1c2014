@@ -189,7 +189,7 @@ sg.objects = sg.objects || {};
   sg.objects.Track = function(context) {
     this.context = context;
 
-    var profile = new sg.paths.BSpline(vec2, [
+    var trackProfile = new sg.paths.BSpline(vec2, [
       vec3.fromValues(-0.1, 0),
       vec3.fromValues(-0.1, 0.2),
       vec3.fromValues(-0.3, 0.2),
@@ -231,7 +231,7 @@ sg.objects = sg.objects || {};
 
     this.innerTrack = new sg.geometries.Extrussion(
       this.context,
-      profile,
+      trackProfile,
       this.path.transform(innerTransform),
       32, 64);
 
@@ -243,15 +243,35 @@ sg.objects = sg.objects || {};
 
     this.outerTrack = new sg.geometries.Extrussion(
       this.context,
-      profile,
+      trackProfile,
       this.path.transform(outerTransform),
       32, 64);
+
+    var baseProfile = new sg.paths.Bezier(vec2,
+      vec2.fromValues(-4, 0),
+      vec2.fromValues(-2.75, 3),
+      vec2.fromValues(2.75, 3),
+      vec2.fromValues(4, 0));
+
+    var baseTransform = mat4.translate(
+      mat4.create(),
+      mat4.create(),
+      vec3.fromValues(0, 0, -2));
+
+    this.base = new sg.geometries.Extrussion(
+      this.context,
+      baseProfile,
+      this.path.transform(baseTransform),
+      16, 128);
   };
 
   sg.objects.Track.prototype.draw = function(m) {
-    this.context.shaders.basic.setColor(vec4.fromValues(0.5, 0.5, 0.8, 0.5));
+    this.context.shaders.basic.setColor(vec4.fromValues(0.5, 0.5, 0.8, 1));
     this.innerTrack.draw(m);
     this.outerTrack.draw(m);
+
+    this.context.shaders.basic.setColor(vec4.fromValues(0.8, 0.8, 0.5, 1));
+    this.base.draw(m);
   };
 
 
