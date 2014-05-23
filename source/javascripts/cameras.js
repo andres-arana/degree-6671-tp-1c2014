@@ -91,4 +91,22 @@ sg.cameras = sg.cameras || {};
     }
   };
 
+  sg.cameras.Rotating.prototype.onKeyHeld = function(key) {
+    if (key == "w") {
+      this.distance -= 0.3;
+      this.distance = Math.max(this.distance, 1);
+    } else if (key == "s") {
+      this.distance += 0.3;
+    }
+  };
+
+  sg.cameras.Rotating.prototype.onKeyReleased = function(key) {
+    if (key == "s") {
+      this.distance -= 0.3;
+      this.distance = Math.max(this.distance, 1);
+    } else if (key == "w") {
+      this.distance += 0.3;
+    }
+  };
+
 })();

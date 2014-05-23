@@ -57,10 +57,20 @@
       normalizePointerLockChanged(canvas, mouseMoved);
     };
 
+    var keyHeld = function(event) {
+      application.onKeyHeld(event);
+    };
+
+    var keyReleased = function(event) {
+      application.onKeyReleased(event);
+    };
+
     canvas.addEventListener("click", canvasClicked);
     document.addEventListener("pointerlockchange", pointerLockChanged);
     document.addEventListener("mozpointerlockchange", pointerLockChanged);
     document.addEventListener("webkitpointerlockchange", pointerLockChanged);
+    document.addEventListener("keydown", keyHeld);
+    document.addEventListener("keyup", keyReleased);
 
     application.run();
   };

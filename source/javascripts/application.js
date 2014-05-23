@@ -1,21 +1,33 @@
 var sg = sg || {};
 
-sg.Application = function(canvas, heightmap) {
-  this.context = new sg.Context(canvas);
-  this.scene = new sg.Scene(this.context, heightmap);
-  this.clock = new sg.Clock();
-};
+(function() {
 
-sg.Application.prototype.run = function() {
-  var instance = this;
-  window.requestAnimationFrame(function() {
-    instance.run();
-  });
+  sg.Application = function(canvas, heightmap) {
+    this.context = new sg.Context(canvas);
+    this.scene = new sg.Scene(this.context, heightmap);
+    this.clock = new sg.Clock();
+  };
 
-  this.scene.draw();
-  this.scene.tick(this.clock.tick());
-};
+  sg.Application.prototype.run = function() {
+    var instance = this;
+    window.requestAnimationFrame(function() {
+      instance.run();
+    });
 
-sg.Application.prototype.onMouseMovement = function(event) {
-  this.scene.onMouseMovement(event);
-};
+    this.scene.draw();
+    this.scene.tick(this.clock.tick());
+  };
+
+  sg.Application.prototype.onMouseMovement = function(event) {
+    this.scene.onMouseMovement(event);
+  };
+
+  sg.Application.prototype.onKeyHeld = function(event) {
+    this.scene.onKeyHeld(event);
+  };
+
+  sg.Application.prototype.onKeyReleased = function(event) {
+    this.scene.onKeyReleased(event);
+  };
+
+})();
