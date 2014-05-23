@@ -25,6 +25,8 @@ sg.objects = sg.objects || {};
     this.track = track;
 
     this.position = 0;
+    this.pistonPosition = 0;
+    this.pistonDirection = 1;
 
     this.cylinder = new sg.geometries.Cylinder(this.context, 24, 4);
     this.box = new sg.geometries.Box(this.context);
@@ -36,8 +38,17 @@ sg.objects = sg.objects || {};
     var modelMatrix = mat4.clone(m);
 
     var trainPosition = this.track.path.evaluate(this.position);
+
+    var derivative = this.track.path.derivative(this.position);
+    var projection = vec3.fromValues(derivative[0], derivative[1], 0);
+    vec3.normalize(projection, projection);
+    var direction = derivative[0] > 0 ? -1 : 1;
+    var rawAngle = vec3.angleBetween(projection, vec3.fromValues(0, 1, 0));
+    var angle = (direction * rawAngle) + Math.PI / 2;
+
     vec3.subtract(trainPosition, trainPosition, vec3.fromValues(0, 0, 9.4));
     mat4.translate(modelMatrix, modelMatrix, trainPosition);
+    mat4.rotateZ(modelMatrix, modelMatrix, angle);
     mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(0.2, 0.2, 0.2));
 
     this.context.shaders.basic.setColor(vec4.fromValues(0.8, 0.2, 0.2, 1.0));
@@ -184,12 +195,12 @@ sg.objects = sg.objects || {};
     // Draw the pistons
     this.context.shaders.basic.setColor(vec4.fromValues(0.5, 0.5, 0.6, 1.0));
     mat4.copy(m1, modelMatrix);
-    mat4.translate(m1, m1, vec3.fromValues(1, 5.25, -8.5));
+    mat4.translate(m1, m1, vec3.fromValues(1 + 2 * this.pistonPosition, 5.25, -8.5));
     mat4.scale(m1, m1, vec3.fromValues(6, 0.25, 0.5));
     this.box.draw(m1);
 
     mat4.copy(m1, modelMatrix);
-    mat4.translate(m1, m1, vec3.fromValues(0, -5.25, -8.5));
+    mat4.translate(m1, m1, vec3.fromValues(1 + 2 * this.pistonPosition, -5.25, -8.5));
     mat4.scale(m1, m1, vec3.fromValues(6, 0.25, 0.5));
     this.box.draw(m1);
   };
@@ -198,6 +209,12 @@ sg.objects = sg.objects || {};
     this.position += delta * 0.00025;
     if (this.position >= this.track.path.upperDomainBound()) {
       this.position -= this.track.path.upperDomainBound();
+    }
+
+    this.pistonPosition += this.pistonDirection * delta * 0.005;
+    if ((this.pistonPosition > 1 && this.pistonDirection > 0) ||
+        (this.pistonPosition < 0 && this.pistonDirection < 0)) {
+      this.pistonDirection *= -1;
     }
   }
 

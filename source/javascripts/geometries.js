@@ -88,10 +88,6 @@ sg.geometries = sg.geometries || {};
       0);
   };
 
-  vec3.angleBetween = function(v1, v2) {
-    return Math.acos(vec3.dot(v1, v2));
-  };
-
   sg.geometries.Terrain = function(context, heightmap) {
     var pictureWidth = 200;
     var pictureHeight = 200;
