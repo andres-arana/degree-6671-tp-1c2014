@@ -20,8 +20,11 @@ sg.objects = sg.objects || {};
     this.water.draw(modelMatrix);
   };
 
-  sg.objects.Train = function(context) {
+  sg.objects.Train = function(context, track) {
     this.context = context;
+    this.track = track;
+
+    this.position = 0;
 
     this.cylinder = new sg.geometries.Cylinder(this.context, 24, 4);
     this.box = new sg.geometries.Box(this.context);
@@ -31,6 +34,11 @@ sg.objects = sg.objects || {};
 
   sg.objects.Train.prototype.draw = function(m) {
     var modelMatrix = mat4.clone(m);
+
+    var trainPosition = this.track.path.evaluate(this.position);
+    vec3.subtract(trainPosition, trainPosition, vec3.fromValues(0, 0, 9.4));
+    mat4.translate(modelMatrix, modelMatrix, trainPosition);
+    mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(0.2, 0.2, 0.2));
 
     this.context.shaders.basic.setColor(vec4.fromValues(0.8, 0.2, 0.2, 1.0));
 
@@ -185,6 +193,13 @@ sg.objects = sg.objects || {};
     mat4.scale(m1, m1, vec3.fromValues(6, 0.25, 0.5));
     this.box.draw(m1);
   };
+
+  sg.objects.Train.prototype.tick = function(delta) {
+    this.position += delta * 0.00025;
+    if (this.position >= this.track.path.upperDomainBound()) {
+      this.position -= this.track.path.upperDomainBound();
+    }
+  }
 
   sg.objects.Track = function(context) {
     this.context = context;

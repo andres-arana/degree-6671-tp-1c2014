@@ -8,12 +8,10 @@ var sg = sg || {};
 
     this.camera = new sg.cameras.Rotating(this.context, vec3.fromValues(0, 0, 0), 55);
     this.terrain = new sg.objects.Terrain(this.context, heightmap);
-    this.train = new sg.objects.Train(this.context);
     this.track = new sg.objects.Track(this.context);
+    this.train = new sg.objects.Train(this.context, this.track);
 
     this.gl.enable(this.gl.DEPTH_TEST);
-
-    this.trainTick = 0;
   };
 
   sg.Scene.prototype.draw = function() {
@@ -33,20 +31,12 @@ var sg = sg || {};
     this.track.draw(trackMatrix);
 
     var trainMatrix = mat4.clone(modelMatrix);
-    var trainPosition = this.track.path.evaluate(this.trainTick);
-    vec3.subtract(trainPosition, trainPosition, vec3.fromValues(0, 0, 9.4));
-    mat4.translate(trainMatrix, trainMatrix, trainPosition);
-    mat4.scale(trainMatrix, trainMatrix, vec3.fromValues(0.2, 0.2, 0.2));
     this.train.draw(trainMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {
     this.camera.tick(delta);
-
-    this.trainTick += delta * 0.00025;
-    if (this.trainTick >= this.track.path.upperDomainBound()) {
-      this.trainTick -= this.track.path.upperDomainBound();
-    }
+    this.train.tick(delta);
   };
 
   sg.Scene.prototype.onMouseMovement = function(event) {
