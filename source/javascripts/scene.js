@@ -10,6 +10,8 @@ sg.Scene = function(context, heightmap) {
   this.track = new sg.objects.Track(this.context);
 
   this.gl.enable(this.gl.DEPTH_TEST);
+
+  this.trainTick = 0;
 };
 
 sg.Scene.prototype.draw = function() {
@@ -29,16 +31,20 @@ sg.Scene.prototype.draw = function() {
   this.track.draw(trackMatrix);
 
   var trainMatrix = mat4.clone(modelMatrix);
-  var trainPosition = this.track.path.evaluate(0);
+  var trainPosition = this.track.path.evaluate(this.trainTick);
   vec3.subtract(trainPosition, trainPosition, vec3.fromValues(0, 0, 9.4));
   mat4.translate(trainMatrix, trainMatrix, trainPosition);
-  mat4.rotateZ(trainMatrix, trainMatrix, Math.PI / 2);
   mat4.scale(trainMatrix, trainMatrix, vec3.fromValues(0.2, 0.2, 0.2));
   this.train.draw(trainMatrix);
 };
 
 sg.Scene.prototype.tick = function(delta) {
   this.camera.tick(delta);
+
+  this.trainTick += delta * 0.00025;
+  if (this.trainTick >= this.track.path.upperDomainBound()) {
+    this.trainTick -= this.track.path.upperDomainBound();
+  }
 };
 
 sg.Scene.prototype.onMouseMovement = function(event) {
