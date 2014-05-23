@@ -211,16 +211,16 @@ sg.objects = sg.objects || {};
     ]);
 
     this.path = new sg.paths.BSpline(vec3, [
-      vec3.fromValues(40, -20, 0),
-      vec3.fromValues(20, 35, 0),
-      vec3.fromValues(0, 30, 0),
-      vec3.fromValues(-20, 25, 0),
-      vec3.fromValues(-30, 0, 0),
-      vec3.fromValues(-40, -20, 0),
-      vec3.fromValues(-30, -45, 0),
-      vec3.fromValues(10, -30, 0),
-      vec3.fromValues(40, -20, 0),
-      vec3.fromValues(20, 35, 0),
+      vec3.fromValues(40, -20, 1),
+      vec3.fromValues(20, 35, 1),
+      vec3.fromValues(0, 30, 1),
+      vec3.fromValues(-20, 25, 1),
+      vec3.fromValues(-30, 0, 1),
+      vec3.fromValues(-40, -20, 1),
+      vec3.fromValues(-30, -46, 1),
+      vec3.fromValues(10, -30, 1),
+      vec3.fromValues(40, -20, 1),
+      vec3.fromValues(20, 35, 1),
     ]);
 
     var innerScale = 29/30;
@@ -256,7 +256,7 @@ sg.objects = sg.objects || {};
     var baseTransform = mat4.translate(
       mat4.create(),
       mat4.create(),
-      vec3.fromValues(0, 0, -2));
+      vec3.fromValues(0, 0, -2.5));
 
     this.base = new sg.geometries.Extrussion(
       this.context,

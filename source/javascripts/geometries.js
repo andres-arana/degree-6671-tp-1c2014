@@ -365,18 +365,15 @@ sg.geometries = sg.geometries || {};
         vec3.create(),
         path.derivative(i * deltaL));
 
-      var projectionZY = vec3.fromValues(0, derivative[1], derivative[2]);
-      vec3.normalize(projectionZY, projectionZY);
-      var angleX = vec3.angleBetween(projectionZY, vec3.fromValues(0, 1, 0));
-
       var projectionXY = vec3.fromValues(derivative[0], derivative[1], 0);
       vec3.normalize(projectionXY, projectionXY);
-      var angleZ = vec3.angleBetween(projectionXY, vec3.fromValues(0, 1, 0));
+      var direction = derivative[0] > 0 ? -1 : 1;
+      var rawAngle = vec3.angleBetween(projectionXY, vec3.fromValues(0, 1, 0));
+      var angle = direction * rawAngle;
 
       var transformation = mat4.create();
       mat4.translate(transformation, transformation, location);
-      mat4.rotateZ(transformation, transformation, angleZ);
-      mat4.rotateX(transformation, transformation, angleX);
+      mat4.rotateZ(transformation, transformation, angle);
 
       for (var j = 0; j <= r; j++) {
         var rawVertex = curve.evaluate(j * deltaT);
