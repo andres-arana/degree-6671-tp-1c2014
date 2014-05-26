@@ -24,7 +24,11 @@ sg.objects = sg.objects || {};
     this.context = context;
     this.track = track;
 
-    this.position = 0;
+    this.positionTick = 0;
+    this.positionDirty = true;
+
+    this.derivativeDirty = true;
+
     this.pistonPosition = 0;
     this.pistonDirection = 1;
 
@@ -34,12 +38,28 @@ sg.objects = sg.objects || {};
     this.triangular = new sg.geometries.TriangularBox(this.context);
   };
 
+  sg.objects.Train.prototype.currentPosition = function() {
+    if (this.positionDirty) {
+      this.positionDirty = false;
+      this.position = this.track.path.evaluate(this.positionTick);
+    }
+    return this.position;
+  };
+
+  sg.objects.Train.prototype.currentDerivative = function() {
+    if (this.derivativeDirty) {
+      this.derivativeDirty = false;
+      this.derivative = this.track.path.derivative(this.positionTick);
+    }
+    return this.derivative;
+  };
+
   sg.objects.Train.prototype.draw = function(m) {
     var modelMatrix = mat4.clone(m);
 
-    var trainPosition = this.track.path.evaluate(this.position);
+    var trainPosition = this.currentPosition();
+    var derivative = this.currentDerivative();
 
-    var derivative = this.track.path.derivative(this.position);
     var projection = vec3.fromValues(derivative[0], derivative[1], 0);
     vec3.normalize(projection, projection);
     var direction = derivative[0] > 0 ? -1 : 1;
@@ -206,9 +226,11 @@ sg.objects = sg.objects || {};
   };
 
   sg.objects.Train.prototype.tick = function(delta) {
-    this.position += delta * 0.00025;
-    if (this.position >= this.track.path.upperDomainBound()) {
-      this.position -= this.track.path.upperDomainBound();
+    this.positionDirty = true;
+    this.derivativeDirty = true;
+    this.positionTick += delta * 0.00025;
+    if (this.positionTick >= this.track.path.upperDomainBound()) {
+      this.positionTick -= this.track.path.upperDomainBound();
     }
 
     this.pistonPosition += this.pistonDirection * delta * 0.005;
@@ -265,7 +287,7 @@ sg.objects = sg.objects || {};
       this.context,
       trackProfile,
       this.path.transform(innerTransform),
-      32, 64);
+      32, 128);
 
     var outerScale = 31/30;
     var outerTransform = mat4.scale(
@@ -277,7 +299,7 @@ sg.objects = sg.objects || {};
       this.context,
       trackProfile,
       this.path.transform(outerTransform),
-      32, 64);
+      32, 128);
 
     var baseProfile = new sg.paths.Bezier(vec2,
       vec2.fromValues(-4, 0),

@@ -1,5 +1,7 @@
 body {
   padding: 1em;
+  background-color: #000;
+  color: #fff;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -11,30 +13,41 @@ h1, h2, h3, h4, h5, h6 {
 
 h1 {
   font-size: 180%;
-  color: #333;
+  color: #ccc;
+  margin: 0;
+  padding: 0;
 }
 
 h2 {
   font-size: 120%;
-  color: #666;
-  margin-bottom: 0.5em;
+  color: #999;
+  margin: 0;
+  padding: 0;
 }
 
 h3 {
   font-size: 100%;
   color: #999;
+  margin: 0;
+  padding: 0;
+}
+
+p {
+  margin: 0;
+  padding: 0;
 }
 
 #canvas-container {
-  float: left;
-  margin-left: 20px;
-  padding-right: 10px;
-  border-right: 3px dashed #ccc;
+  margin-left: 10px;
+  text-align: center;
 }
 
 #info-container {
-  float: left;
+  text-align: center;
   margin-left: 10px;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 3px dashed #666;
 }
 
 .image-data {
