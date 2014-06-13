@@ -20,6 +20,34 @@
     <img src="assets/heightmap.gif" class="image-data" id="heightmap">
   </div>
 
+  <script id="fragment-basic" type="application/fragment" >
+    precision mediump float;
+    varying vec4 f_color;
+
+    void main(void) {
+      gl_FragColor = f_color;
+    }
+  </script>
+
+  <script id="vertex-basic" type="application/vertex" >
+      attribute vec3 position;
+
+      uniform mat4 projectionMatrix;
+      uniform mat4 viewMatrix;
+      uniform mat4 modelMatrix;
+      uniform vec4 color;
+
+      varying vec4 f_color;
+
+      void main(void) {
+        vec4 eyeVertexCoords = viewMatrix * modelMatrix * vec4(position, 1.0);
+        float distance = length(eyeVertexCoords) / 5.0;
+        gl_Position = projectionMatrix * eyeVertexCoords;
+        f_color = color / distance;
+        f_color.w = 1.0;
+      }
+  </script>
+
   <script src="libraries/glmatrix.min.js"></script>
   <script src="libraries/webgl-debug.js"></script>
   <script src="libraries/imagesloaded.min.js"></script>

@@ -5,7 +5,8 @@ var sg = sg || {};
   sg.Context = function(canvas) {
     this.width = canvas.width;
     this.height = canvas.height;
-    this.gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
+    // this.gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
+    this.gl = canvas.getContext("webgl");
     this.shaders = {
       basic: new sg.shaders.Basic(this.gl)
     };

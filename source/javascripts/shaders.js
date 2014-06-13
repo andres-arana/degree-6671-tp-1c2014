@@ -3,7 +3,8 @@ sg.shaders = sg.shaders || {};
 
 (function() {
 
-  function compileShader(gl, type, source) {
+  function compileShader(gl, type, id) {
+    var source = document.getElementById(id).innerHTML;
     var shader = gl.createShader(type);
 
     gl.shaderSource(shader, source);
@@ -22,35 +23,12 @@ sg.shaders = sg.shaders || {};
     var fragmentShader = compileShader(
       this.gl,
       this.gl.FRAGMENT_SHADER,
-      "\
-      precision mediump float;\
-      \
-      varying vec4 f_color;\
-      \
-      void main(void) {\
-        gl_FragColor = f_color;\
-      }");
+      "fragment-basic");
 
     var vertexShader = compileShader(
       this.gl,
       this.gl.VERTEX_SHADER,
-      "\
-      attribute vec3 position;\
-      \
-      uniform mat4 projectionMatrix;\
-      uniform mat4 viewMatrix;\
-      uniform mat4 modelMatrix;\
-      uniform vec4 color;\
-      \
-      varying vec4 f_color;\
-      \
-      void main(void) {\
-        vec4 eyeVertexCoords = viewMatrix * modelMatrix * vec4(position, 1.0);\
-        float distance = length(eyeVertexCoords) / 5.0;\
-        gl_Position = projectionMatrix * eyeVertexCoords;\
-        f_color = color / distance;\
-        f_color.w = 1.0;\
-      }");
+      "vertex-basic");
 
     var program = this.gl.createProgram();
     this.gl.attachShader(program, vertexShader);
