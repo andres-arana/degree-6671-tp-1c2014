@@ -35,22 +35,20 @@ var sg = sg || {};
     this.gl.clearColor(0.7, 0.7, 1.0, 1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-    this.context.shaders.basic.use();
-
     this.context.shaders.basic.setProjectionMatrix(
       this.currentCamera.camera.getProjection());
-    this.context.shaders.basic.setViewMatrix(
-      this.currentCamera.camera.getView());
+
+    var viewMatrix = this.currentCamera.camera.getView();
 
     var modelMatrix = mat4.create();
-    this.terrain.draw(modelMatrix);
+    this.terrain.draw(viewMatrix, modelMatrix);
 
     var trackMatrix = mat4.clone(modelMatrix);
     mat4.translate(trackMatrix, trackMatrix, vec3.fromValues(0, 0, -12));
-    this.track.draw(trackMatrix);
+    this.track.draw(viewMatrix, trackMatrix);
 
     var trainMatrix = mat4.clone(modelMatrix);
-    this.train.draw(trainMatrix);
+    this.train.draw(viewMatrix, trainMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {

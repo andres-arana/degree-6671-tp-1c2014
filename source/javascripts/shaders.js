@@ -43,8 +43,7 @@ sg.shaders = sg.shaders || {};
     this.gl.enableVertexAttribArray(this.positionAttribute);
 
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
-    this.viewUniform = this.gl.getUniformLocation(program, "viewMatrix");
-    this.modelUniform = this.gl.getUniformLocation(program, "modelMatrix");
+    this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
     this.colorUniform = this.gl.getUniformLocation(program, "color");
 
     this.shader = program;
@@ -58,12 +57,8 @@ sg.shaders = sg.shaders || {};
     this.gl.uniformMatrix4fv(this.projectionUniform, false, m);
   };
 
-  sg.shaders.Basic.prototype.setViewMatrix = function(m) {
-    this.gl.uniformMatrix4fv(this.viewUniform, false, m);
-  };
-
-  sg.shaders.Basic.prototype.setModelMatrix = function(m) {
-    this.gl.uniformMatrix4fv(this.modelUniform, false, m);
+  sg.shaders.Basic.prototype.setModelViewMatrix = function(m) {
+    this.gl.uniformMatrix4fv(this.modelViewUniform, false, m);
   };
 
   sg.shaders.Basic.prototype.setColor = function(color) {

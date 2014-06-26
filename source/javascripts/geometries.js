@@ -56,8 +56,11 @@ sg.geometries = sg.geometries || {};
     return buildIndexBuffer(gl, indices);
   };
 
-  function drawWithTriangleStrips(m) {
-    this.context.shaders.basic.setModelMatrix(m);
+  function drawWithTriangleStrips(v, m) {
+    this.context.shaders.basic.use();
+    var modelViewMatrix = mat4.create();
+    mat4.multiply(modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
 
     var attribute = this.context.shaders.basic.getPositionAttribute();
 
@@ -72,8 +75,11 @@ sg.geometries = sg.geometries || {};
       0);
   };
 
-  function drawWithTriangles(m) {
-    this.context.shaders.basic.setModelMatrix(m);
+  function drawWithTriangles(v, m) {
+    this.context.shaders.basic.use();
+    var modelViewMatrix = mat4.create();
+    mat4.multiply(modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
 
     var attribute = this.context.shaders.basic.getPositionAttribute();
 
@@ -86,6 +92,26 @@ sg.geometries = sg.geometries || {};
       this.indexBuffer.items,
       this.gl.UNSIGNED_SHORT,
       0);
+  };
+
+  function clampIndex(index, min, max) {
+    if (index < min) {
+      return min;
+    } else if (index > max) {
+      return max;
+    } else {
+      return index;
+    }
+  };
+
+  function clamIndexWithDefault(index, min, max, def) {
+    if (index < min) {
+      return def;
+    } else if (index > max) {
+      return def;
+    } else {
+      return index;
+    }
   };
 
   sg.geometries.Terrain = function(context, heightmap) {
@@ -120,9 +146,45 @@ sg.geometries = sg.geometries || {};
       var x = (i * 100 / pictureWidth) - 50;
       for (var j = 0; j < pictureHeight; j++) {
         var y = (j * 100 / pictureHeight) - 50;
+
+        var currentIndex = i * pictureHeight + j;
+
+        var leftIndex = clampIndex(i * pictureHeight + j - 1, 0, size - 1);
+        var rightIndex = clampIndex(i * pictureHeight + j + 1, 0, size - 1);
+        var dfdx = (heightData[rightIndex] - heightData[leftIndex]) / 2;
+
+        var topIndex = clamIndexWithDefault((i - 1) * pictureHeight + j, 0, size - 1, currentIndex);
+        var botIndex = clamIndexWithDefault((i + 1) * pictureHeight + j, 0, size - 1, currentIndex);
+        var dfdy = (heightData[botIndex] - heightData[topIndex]) / 2;
+
+        // Vertex position
         vertices.push(x);
         vertices.push(y);
-        vertices.push(heightData[i * pictureHeight+ j]);
+        vertices.push(heightData[currentIndex]);
+
+        // Vertex normal
+        // (tg x bitg)
+        var normal = vec3.fromValues(-dfdx, dfdy, 1);
+        vec3.normalize(normal, normal);
+        vertices.push(normal[0]);
+        vertices.push(normal[1]);
+        vertices.push(normal[2]);
+
+        // Vertex tg
+        // (1, 0, dfdx)
+        var tg = vec3.fromValues(1, 0, dfdx);
+        vec3.normalize(tg, tg);
+        vertices.push(tg[0]);
+        vertices.push(tg[1]);
+        vertices.push(tg[2]);
+
+        // Vertex bitg
+        // (0, 1, dfdy)
+        var bitg = vec3.fromValues(0, 1, dfdy);
+        vec3.normalize(bitg, bitg);
+        vertices.push(bitg[0]);
+        vertices.push(bitg[1]);
+        vertices.push(bitg[2]);
       }
     }
 
@@ -132,7 +194,24 @@ sg.geometries = sg.geometries || {};
       this.gl, pictureWidth, pictureHeight);
   };
 
-  sg.geometries.Terrain.prototype.draw = drawWithTriangleStrips;
+  sg.geometries.Terrain.prototype.draw = function(v, m) {
+    this.context.shaders.basic.use();
+    var modelViewMatrix = mat4.create();
+    mat4.multiply(modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+
+    var positionAttribute = this.context.shaders.basic.getPositionAttribute();
+    this.gl.vertexAttribPointer(positionAttribute, 3, this.gl.FLOAT, false, 48, 0);
+
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+    this.gl.drawElements(
+      this.gl.TRIANGLE_STRIP,
+      this.indexBuffer.items,
+      this.gl.UNSIGNED_SHORT,
+      0);
+  };
 
   sg.geometries.Water = function(context, level) {
     this.context = context;
