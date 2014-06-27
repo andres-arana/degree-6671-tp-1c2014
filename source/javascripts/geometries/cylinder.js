@@ -7,6 +7,7 @@ sg.geometries = sg.geometries || {};
     this.context = context;
     this.gl = context.gl;
     this.circle = new sg.paths.Circle(1);
+    this.modelViewMatrix = mat4.create();
 
     vertices = [];
     for (var i = 0; i < r; i++) {
@@ -40,9 +41,8 @@ sg.geometries = sg.geometries || {};
 
   sg.geometries.Cylinder.prototype.draw = function(v, m) {
     this.context.shaders.basic.use();
-    var modelViewMatrix = mat4.create();
-    mat4.multiply(modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
+    mat4.multiply(this.modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
 
     var attribute = this.context.shaders.basic.getPositionAttribute();
 

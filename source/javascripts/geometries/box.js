@@ -6,6 +6,7 @@ sg.geometries = sg.geometries || {};
   sg.geometries.Box = function(context) {
     this.context = context;
     this.gl = context.gl;
+    this.modelViewMatrix = mat4.create();
 
     var vertices = [
       // Front face
@@ -62,9 +63,8 @@ sg.geometries = sg.geometries || {};
 
   sg.geometries.Box.prototype.draw = function(v, m) {
     this.context.shaders.basic.use();
-    var modelViewMatrix = mat4.create();
-    mat4.multiply(modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
+    mat4.multiply(this.modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
 
     var attribute = this.context.shaders.basic.getPositionAttribute();
 

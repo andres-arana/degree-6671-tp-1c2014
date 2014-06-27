@@ -6,6 +6,7 @@ sg.geometries = sg.geometries || {};
   sg.geometries.Arc = function(context, r, l, t) {
     this.context = context;
     this.gl = context.gl;
+    this.modelViewMatrix = mat4.create();
 
     // Precalculate data for each angle
     var delta = Math.PI / (r - 1);
@@ -67,9 +68,8 @@ sg.geometries = sg.geometries || {};
 
   sg.geometries.Arc.prototype.draw = function(v, m) {
     this.context.shaders.basic.use();
-    var modelViewMatrix = mat4.create();
-    mat4.multiply(modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
+    mat4.multiply(this.modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
 
     var attribute = this.context.shaders.basic.getPositionAttribute();
 

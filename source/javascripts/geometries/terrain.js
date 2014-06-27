@@ -30,6 +30,7 @@ sg.geometries = sg.geometries || {};
   sg.geometries.Terrain = function(context, heightmap) {
     this.context = context;
     this.gl = context.gl;
+    this.modelViewMatrix = mat4.create();
 
     // Extract height data from image
     var canvas = document.createElement('canvas');
@@ -106,9 +107,8 @@ sg.geometries = sg.geometries || {};
 
   sg.geometries.Terrain.prototype.draw = function(v, m) {
     this.context.shaders.basic.use();
-    var modelViewMatrix = mat4.create();
-    mat4.multiply(modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(modelViewMatrix)
+    mat4.multiply(this.modelViewMatrix, v, m);
+    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
 
