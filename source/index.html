@@ -20,27 +20,73 @@
     <img src="assets/heightmap.gif" class="image-data" id="heightmap">
   </div>
 
-  <script id="vertex-basic" type="application/vertex" >
-      attribute vec3 position;
+  <script id="vertex-phong" type="application/vertex" >
+    attribute vec3 position;
+    attribute vec3 normal;
 
-      uniform mat4 projectionMatrix;
-      uniform mat4 modelViewMatrix;
-      uniform vec4 color;
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    uniform mat3 normalMatrix;
 
-      varying vec4 f_color;
+    uniform vec3 ambientReflectivity;
+    uniform vec3 diffuseReflectivity;
+    uniform vec3 specularReflectivity;
+    uniform float shininess;
 
-      void main(void) {
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        f_color = color;
-      }
-  </script>
+    uniform vec3 lightDirection;
 
-  <script id="fragment-basic" type="application/fragment" >
-    precision mediump float;
-    varying vec4 f_color;
+    varying vec3 f_position;
+    varying vec3 f_normal;
+
+    varying vec3 f_ambientReflectivity;
+    varying vec3 f_diffuseReflectivity;
+    varying vec3 f_specularReflectivity;
+    varying float f_shininess;
+
+    varying vec3 f_lightDirection;
 
     void main(void) {
-      gl_FragColor = f_color;
+      f_position = vec3(modelViewMatrix * vec4(position, 1.0));
+      f_normal = normalize(normalMatrix * normal);
+      f_ambientReflectivity = ambientReflectivity;
+      f_diffuseReflectivity = diffuseReflectivity;
+      f_specularReflectivity = specularReflectivity;
+      f_shininess = shininess;
+      f_lightDirection = lightDirection;
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  </script>
+
+  <script id="fragment-phong" type="application/fragment" >
+    precision mediump float;
+    varying vec3 f_position;
+    varying vec3 f_normal;
+
+    varying vec3 f_ambientReflectivity;
+    varying vec3 f_diffuseReflectivity;
+    varying vec3 f_specularReflectivity;
+    varying float f_shininess;
+
+    varying vec3 f_lightDirection;
+
+    void main(void) {
+      vec3 normal = normalize(f_normal);
+      vec3 eye = normalize(vec3(0.0, 0.0, 0.0) - f_position);
+      vec3 light = normalize(f_lightDirection);
+
+      float dotNormalLight = dot(normal, light);
+
+      vec3 ambient = f_ambientReflectivity;
+      vec3 diffuse = f_diffuseReflectivity * max(0.0, dotNormalLight);
+      vec3 specular;
+      if (dotNormalLight < 0.0) {
+        specular = vec3(0.0, 0.0, 0.0);
+      } else {
+        specular = f_specularReflectivity * pow(max(0.0, dot(reflect(-light, normal), eye)), f_shininess);
+      }
+
+      gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
     }
   </script>
 
@@ -65,7 +111,8 @@
   <script src="javascripts/cameras/driver.js"></script>
 
   <!-- Shaders -->
-  <script src="javascripts/shaders/basic.js"></script>
+  <script src="javascripts/shaders/utilities.js"></script>
+  <script src="javascripts/shaders/phong.js"></script>
 
   <!-- Geometries -->
   <script src="javascripts/geometries/buffer_generator.js"></script>
@@ -82,6 +129,7 @@
   <script src="javascripts/objects/train.js"></script>
   <script src="javascripts/objects/track.js"></script>
 
+  <!-- Scene and application definition -->
   <script src="javascripts/context.js"></script>
   <script src="javascripts/scene.js"></script>
   <script src="javascripts/clock.js"></script>

@@ -6,7 +6,17 @@ var sg = sg || {};
     this.context = context;
     this.gl = this.context.gl;
 
+    this.lightDirection = vec3.fromValues(0, 0, 1);
+    this.lightViewMatrix = mat3.create();
+    this.transformedLightDirection = vec3.create();
+
     this.terrain = new sg.objects.Terrain(this.context, heightmap);
+    this.terrainModelMatrix = mat4.create();
+    mat4.translate(
+      this.terrainModelMatrix,
+      this.terrainModelMatrix,
+      vec3.fromValues(0, 0, -20));
+
     this.track = new sg.objects.Track(this.context);
     this.train = new sg.objects.Train(this.context, this.track);
 
@@ -28,6 +38,8 @@ var sg = sg || {};
     this.currentCamera = this.rotatingCamera;
 
     this.gl.enable(this.gl.DEPTH_TEST);
+
+    this.context.shader.use();
   };
 
   sg.Scene.prototype.draw = function() {
@@ -35,20 +47,28 @@ var sg = sg || {};
     this.gl.clearColor(0.7, 0.7, 1.0, 1.0);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
-    this.context.shaders.basic.setProjectionMatrix(
-      this.currentCamera.camera.getProjection());
-
     var viewMatrix = this.currentCamera.camera.getView();
 
-    var modelMatrix = mat4.create();
-    this.terrain.draw(viewMatrix, modelMatrix);
+    this.context.shader.setProjectionMatrix(
+      this.currentCamera.camera.getProjection());
 
-    var trackMatrix = mat4.clone(modelMatrix);
-    mat4.translate(trackMatrix, trackMatrix, vec3.fromValues(0, 0, -12));
-    this.track.draw(viewMatrix, trackMatrix);
+    mat3.fromMat4(this.lightViewMatrix, viewMatrix);
+    vec3.transformMat3(
+      this.transformedLightDirection,
+      this.lightDirection,
+      this.lightViewMatrix);
+    this.context.shader.setLightDirection(this.transformedLightDirection);
 
-    var trainMatrix = mat4.clone(modelMatrix);
-    this.train.draw(viewMatrix, trainMatrix);
+
+
+    this.terrain.draw(viewMatrix, this.terrainModelMatrix);
+
+    // var trackMatrix = mat4.clone(modelMatrix);
+    // mat4.translate(trackMatrix, trackMatrix, vec3.fromValues(0, 0, -12));
+    // this.track.draw(viewMatrix, trackMatrix);
+
+    // var trainMatrix = mat4.clone(modelMatrix);
+    // this.train.draw(viewMatrix, trainMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {

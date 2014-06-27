@@ -5,11 +5,10 @@ var sg = sg || {};
   sg.Context = function(canvas) {
     this.width = canvas.width;
     this.height = canvas.height;
-    // this.gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
-    this.gl = canvas.getContext("webgl");
-    this.shaders = {
-      basic: new sg.shaders.Basic(this.gl)
-    };
+    this.gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
+    // this.gl = canvas.getContext("webgl");
+
+    this.shader = new sg.shaders.Phong(this.gl);
   }
 
   sg.Context.prototype.setGLViewport = function() {

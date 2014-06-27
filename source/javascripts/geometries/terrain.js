@@ -31,6 +31,7 @@ sg.geometries = sg.geometries || {};
     this.context = context;
     this.gl = context.gl;
     this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
 
     // Extract height data from image
     var canvas = document.createElement('canvas');
@@ -106,14 +107,19 @@ sg.geometries = sg.geometries || {};
   };
 
   sg.geometries.Terrain.prototype.draw = function(v, m) {
-    this.context.shaders.basic.use();
     mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
+    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
+
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    this.context.shader.setNormalMatrix(this.normalMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
 
-    var positionAttribute = this.context.shaders.basic.getPositionAttribute();
-    this.gl.vertexAttribPointer(positionAttribute, 3, this.gl.FLOAT, false, 48, 0);
+    var position = this.context.shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 48, 0);
+
+    var normal = this.context.shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 48, 12);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(
