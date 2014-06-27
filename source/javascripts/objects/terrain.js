@@ -59,17 +59,15 @@ sg.objects = sg.objects || {};
   };
 
   sg.objects.Terrain.prototype.draw = function(v, m) {
+    this.context.shader.setUseTextures(true);
     this.gl.activeTexture(this.gl.TEXTURE0);
     this.gl.bindTexture(this.gl.TEXTURE_2D, this.grassTexture);
-    this.context.shader.setUseTextures(true);
     this.context.shader.setTexture(0);
     this.context.shader.setSpecular(this.terrainSpecular);
     this.context.shader.setShininess(this.terrainShininess);
-
     this.terrain.draw(v, m);
 
     this.context.shader.setUseTextures(false);
-
     this.context.shader.setAmbient(this.waterAmbient);
     this.context.shader.setDiffuse(this.waterDiffuse);
     this.context.shader.setSpecular(this.waterSpecular);

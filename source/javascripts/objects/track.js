@@ -92,6 +92,7 @@ sg.objects = sg.objects || {};
   };
 
   sg.objects.Track.prototype.draw = function(v, m) {
+    this.context.shader.setUseTextures(false);
     this.context.shader.setAmbient(this.trackAmbient);
     this.context.shader.setDiffuse(this.trackDiffuse);
     this.context.shader.setSpecular(this.trackSpecular);
@@ -100,6 +101,7 @@ sg.objects = sg.objects || {};
     this.innerTrack.draw(v, m);
     this.outerTrack.draw(v, m);
 
+    this.context.shader.setUseTextures(false);
     this.context.shader.setAmbient(this.baseAmbient);
     this.context.shader.setDiffuse(this.baseDiffuse);
     this.context.shader.setSpecular(this.baseSpecular);

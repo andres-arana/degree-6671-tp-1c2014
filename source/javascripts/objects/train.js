@@ -73,6 +73,7 @@ sg.objects = sg.objects || {};
     mat4.rotateZ(modelMatrix, modelMatrix, angle);
     mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(0.2, 0.2, 0.2));
 
+    this.context.shader.setUseTextures(false);
     this.context.shader.setAmbient(this.bodyAmbient);
     this.context.shader.setDiffuse(this.bodyDiffuse);
     this.context.shader.setSpecular(this.bodySpecular);
@@ -184,6 +185,7 @@ sg.objects = sg.objects || {};
     this.box.draw(v, m1);
 
     // Draw the roof
+    this.context.shader.setUseTextures(false);
     this.context.shader.setAmbient(this.roofAmbient);
     this.context.shader.setDiffuse(this.roofDiffuse);
     this.context.shader.setSpecular(this.roofSpecular);
@@ -196,6 +198,7 @@ sg.objects = sg.objects || {};
     this.arc.draw(v, m1);
 
     // Draw the wheels
+    this.context.shader.setUseTextures(false);
     this.context.shader.setAmbient(this.wheelsAmbient);
     this.context.shader.setDiffuse(this.wheelsDiffuse);
     this.context.shader.setSpecular(this.wheelsSpecular);
@@ -226,6 +229,7 @@ sg.objects = sg.objects || {};
     this.cylinder.draw(v, m1);
 
     // Draw the pistons
+    this.context.shader.setUseTextures(false);
     this.context.shader.setAmbient(this.pistonAmbient);
     this.context.shader.setDiffuse(this.pistonDiffuse);
     this.context.shader.setSpecular(this.pistonSpecular);
