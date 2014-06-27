@@ -24,7 +24,7 @@
   <script id="vertex-phong" type="application/vertex" >
     attribute vec3 position;
     attribute vec3 normal;
-    attribute vec2 uv;
+    attribute vec2 texCoords;
 
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
@@ -39,7 +39,7 @@
 
     varying vec3 f_position;
     varying vec3 f_normal;
-    varying highp vec2 f_uv;
+    varying vec2 f_uv;
 
     varying vec3 f_ambientReflectivity;
     varying vec3 f_diffuseReflectivity;
@@ -56,7 +56,7 @@
       f_specularReflectivity = specularReflectivity;
       f_shininess = shininess;
       f_lightDirection = lightDirection;
-      f_uv = uv;
+      f_uv = texCoords;
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
@@ -66,7 +66,7 @@
     precision mediump float;
     varying vec3 f_position;
     varying vec3 f_normal;
-    varying highp vec2 f_uv;
+    varying vec2 f_uv;
 
     varying vec3 f_ambientReflectivity;
     varying vec3 f_diffuseReflectivity;
@@ -86,23 +86,26 @@
       vec3 ambient;
       vec3 diffuse;
       vec3 specular;
+      vec3 textureColor;
 
       float lambert = dot(normal, light);
 
       if (useTextures) {
-        gl_FragColor = texture2D(textureSampler, vec2(f_uv.s, f_uv.t));
+        textureColor = vec3(texture2D(textureSampler, vec2(f_uv.s, f_uv.t)));
+        ambient = textureColor * 0.1;
+        diffuse = textureColor * 0.9 * max(0.0, lambert);
       } else {
         ambient = f_ambientReflectivity;
         diffuse = f_diffuseReflectivity * max(0.0, lambert);
-        if (lambert < 0.0) {
-          specular = vec3(0.0, 0.0, 0.0);
-        } else {
-          specular = f_specularReflectivity * pow(max(0.0, dot(reflect(light, normal), eye)), f_shininess);
-        }
-        gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
       }
 
+      if (lambert < 0.0) {
+        specular = vec3(0.0, 0.0, 0.0);
+      } else {
+        specular = f_specularReflectivity * pow(max(0.0, dot(reflect(light, normal), eye)), f_shininess);
+      }
 
+      gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
     }
   </script>
 

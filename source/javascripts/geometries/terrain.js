@@ -85,9 +85,9 @@ sg.geometries = sg.geometries || {};
 
         // Vertex texture coords
         // (x, y)
-        var uv = vec2.fromValues(position[0], position[1]);
-        vertices.push((uv[0] + 50) / 100);
-        vertices.push((uv[1] + 50) / 100);
+        var uv = vec2.fromValues((position[0] + 50) / 10, (position[1] + 50) / 10);
+        vertices.push(uv[0]);
+        vertices.push(uv[1]);
       }
     }
 

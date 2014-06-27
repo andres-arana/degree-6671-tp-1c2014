@@ -70,11 +70,11 @@ sg.objects = sg.objects || {};
 
     this.context.shader.setUseTextures(false);
 
-    // this.context.shader.setAmbient(this.waterAmbient);
-    // this.context.shader.setDiffuse(this.waterDiffuse);
-    // this.context.shader.setSpecular(this.waterSpecular);
-    // this.context.shader.setShininess(this.waterShininess);
-    // this.water.draw(v, m);
+    this.context.shader.setAmbient(this.waterAmbient);
+    this.context.shader.setDiffuse(this.waterDiffuse);
+    this.context.shader.setSpecular(this.waterSpecular);
+    this.context.shader.setShininess(this.waterShininess);
+    this.water.draw(v, m);
   };
 
 })();

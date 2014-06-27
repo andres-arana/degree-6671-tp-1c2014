@@ -27,7 +27,7 @@ sg.shaders = sg.shaders || {};
 
     this.positionAttribute = this.gl.getAttribLocation(program, "position");
     this.normalAttribute = this.gl.getAttribLocation(program, "normal");
-    this.uvAttribute = this.gl.getAttribLocation(program, "uv");
+    this.uvAttribute = this.gl.getAttribLocation(program, "texCoords");
 
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
@@ -49,6 +49,7 @@ sg.shaders = sg.shaders || {};
     this.gl.useProgram(this.shader);
     this.gl.enableVertexAttribArray(this.positionAttribute);
     this.gl.enableVertexAttribArray(this.normalAttribute);
+    this.gl.enableVertexAttribArray(this.uvAttribute);
   };
 
   sg.shaders.Phong.prototype.setProjectionMatrix = function(m) {
