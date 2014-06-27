@@ -18,6 +18,26 @@ sg.objects = sg.objects || {};
     this.box = new sg.geometries.Box(this.context);
     this.arc = new sg.geometries.Arc(this.context, 24, 4, 0.5);
     this.triangular = new sg.geometries.TriangularBox(this.context);
+
+    this.bodyAmbient = vec3.fromValues(0.4, 0.1, 0.1);
+    this.bodyDiffuse = vec3.fromValues(0.4, 0.1, 0.1);
+    this.bodySpecular = vec3.fromValues(0.4, 0.1, 0.1);
+    this.bodyShininess = 100;
+
+    this.roofAmbient = vec3.fromValues(0.4, 0.4, 0.1);
+    this.roofDiffuse = vec3.fromValues(0.4, 0.4, 0.1);
+    this.roofSpecular = vec3.fromValues(0, 0, 0);
+    this.roofShininess = 1;
+
+    this.wheelsAmbient = vec3.fromValues(0.15, 0.15, 0.15);
+    this.wheelsDiffuse = vec3.fromValues(0.15, 0.15, 0.15);
+    this.wheelsSpecular = vec3.fromValues(0, 0, 0);
+    this.wheelsShininess = 1;
+
+    this.pistonAmbient = vec3.fromValues(0.25, 0.25, 0.3);
+    this.pistonDiffuse = vec3.fromValues(0.25, 0.25, 0.3);
+    this.pistonSpecular = vec3.fromValues(1, 1, 1);
+    this.pistonShininess = 100;
   };
 
   sg.objects.Train.prototype.currentPosition = function() {
@@ -53,7 +73,10 @@ sg.objects = sg.objects || {};
     mat4.rotateZ(modelMatrix, modelMatrix, angle);
     mat4.scale(modelMatrix, modelMatrix, vec3.fromValues(0.2, 0.2, 0.2));
 
-    this.context.shaders.basic.setColor(vec4.fromValues(0.8, 0.2, 0.2, 1.0));
+    this.context.shader.setAmbient(this.bodyAmbient);
+    this.context.shader.setDiffuse(this.bodyDiffuse);
+    this.context.shader.setSpecular(this.bodySpecular);
+    this.context.shader.setShininess(this.bodyShininess);
 
     // Draw the engine container
     var m1 = mat4.clone(modelMatrix);
@@ -96,7 +119,7 @@ sg.objects = sg.objects || {};
     // Draw the engine support
     mat4.copy(m1, modelMatrix);
     mat4.translate(m1, m1, vec3.fromValues(-2, 0, -5));
-    mat4.scale(m1, m1, vec3.fromValues(9, 6, 0.25));
+    mat4.scale(m1, m1, vec3.fromValues(8.75, 6, 0.25));
     this.box.draw(v, m1);
 
     // Draw the cockpit
@@ -161,15 +184,23 @@ sg.objects = sg.objects || {};
     this.box.draw(v, m1);
 
     // Draw the roof
-    this.context.shaders.basic.setColor(vec4.fromValues(0.8, 0.8, 0.2, 1.0));
+    this.context.shader.setAmbient(this.roofAmbient);
+    this.context.shader.setDiffuse(this.roofDiffuse);
+    this.context.shader.setSpecular(this.roofSpecular);
+    this.context.shader.setShininess(this.roofShininess);
+
     mat4.copy(m1, modelMatrix);
-    mat4.translate(m1, m1, vec3.fromValues(0, 0, 12.5));
+    mat4.translate(m1, m1, vec3.fromValues(0, 0, 12.0));
     mat4.rotateZ(m1, m1, Math.PI / 2);
     mat4.scale(m1, m1, vec3.fromValues(6, 10, 2));
     this.arc.draw(v, m1);
 
     // Draw the wheels
-    this.context.shaders.basic.setColor(vec4.fromValues(0.3, 0.3, 0.3, 1.0));
+    this.context.shader.setAmbient(this.wheelsAmbient);
+    this.context.shader.setDiffuse(this.wheelsDiffuse);
+    this.context.shader.setSpecular(this.wheelsSpecular);
+    this.context.shader.setShininess(this.wheelsShininess);
+
     mat4.copy(m1, modelMatrix);
     mat4.translate(m1, m1, vec3.fromValues(3, 5, -8.5));
     mat4.rotateX(m1, m1, Math.PI/2);
@@ -195,7 +226,11 @@ sg.objects = sg.objects || {};
     this.cylinder.draw(v, m1);
 
     // Draw the pistons
-    this.context.shaders.basic.setColor(vec4.fromValues(0.5, 0.5, 0.6, 1.0));
+    this.context.shader.setAmbient(this.pistonAmbient);
+    this.context.shader.setDiffuse(this.pistonDiffuse);
+    this.context.shader.setSpecular(this.pistonSpecular);
+    this.context.shader.setShininess(this.pistonShininess);
+
     mat4.copy(m1, modelMatrix);
     mat4.translate(m1, m1, vec3.fromValues(1 + 2 * this.pistonPosition, 5.25, -8.5));
     mat4.scale(m1, m1, vec3.fromValues(6, 0.25, 0.5));

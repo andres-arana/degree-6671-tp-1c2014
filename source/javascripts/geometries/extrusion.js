@@ -7,13 +7,12 @@ sg.geometries = sg.geometries || {};
     this.context = context;
     this.gl = context.gl;
     this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
 
     var vertices = [];
 
     var deltaT = (curve.upperDomainBound() - curve.lowerDomainBound()) / r;
     var deltaL = (path.upperDomainBound() - path.lowerDomainBound()) / l;
-
-    var curveNormal = vec3.fromValues(0, 0, 1);
 
     for (var i = 0; i <= l; i++) {
       var location = path.evaluate(i * deltaL);
@@ -31,6 +30,9 @@ sg.geometries = sg.geometries || {};
       mat4.translate(transformation, transformation, location);
       mat4.rotateZ(transformation, transformation, angle);
 
+      var rotation = mat4.create();
+      var rotation = mat4.rotateZ(rotation, rotation, angle);
+
       for (var j = 0; j <= r; j++) {
         var rawVertex = curve.evaluate(j * deltaT);
         var vertex = vec4.fromValues(rawVertex[0], 0, rawVertex[1], 1);
@@ -39,6 +41,17 @@ sg.geometries = sg.geometries || {};
         vertices.push(vertex[0]);
         vertices.push(vertex[1]);
         vertices.push(vertex[2]);
+
+        var rawCurveDerivative = curve.derivative(j * deltaT);
+        var curveDerivative = vec3.fromValues(rawCurveDerivative[0], 0, rawCurveDerivative[1]);
+
+        var tangent = vec3.transformMat4(vec3.create(), curveDerivative, rotation);
+
+        var normal = vec3.cross(vec3.create(), tangent, projectionXY);
+        vertices.push(normal[0]);
+        vertices.push(normal[1]);
+        vertices.push(normal[2]);
+
       }
     }
 
@@ -49,14 +62,19 @@ sg.geometries = sg.geometries || {};
   };
 
   sg.geometries.Extrussion.prototype.draw = function(v, m) {
-    this.context.shaders.basic.use();
     mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
+    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
 
-    var attribute = this.context.shaders.basic.getPositionAttribute();
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    this.context.shader.setNormalMatrix(this.normalMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+
+    var position = this.context.shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
+
+    var normal = this.context.shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(

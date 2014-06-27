@@ -7,6 +7,7 @@ sg.geometries = sg.geometries || {};
     this.context = context;
     this.gl = context.gl;
     this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
 
     // Precalculate data for each angle
     var delta = Math.PI / (r - 1);
@@ -18,63 +19,39 @@ sg.geometries = sg.geometries || {};
     }
 
     var vertices = [];
-    // Add front face degenerate vertices
-    for (var i = 0; i < r; i++) {
-      vertices.push(precalculatedX[i]);
-      vertices.push(0);
-      vertices.push(precalculatedZ[i] - t / 2);
-    }
-
-    for (var i = r - 1 ; i >= 0; i--) {
-      vertices.push(precalculatedX[i]);
-      vertices.push(0);
-      vertices.push(precalculatedZ[i] - t / 2);
-    }
-
-    // Add arc vertices
     var deltaLongitude = 1 / (l - 1);
     for (var j = 0; j < l; j++) {
       for (var i = 0; i < r; i++) {
         vertices.push(precalculatedX[i]);
         vertices.push(j * deltaLongitude);
         vertices.push(precalculatedZ[i]);
-      }
 
-      for (var i = r - 1; i >= 0; i--) {
         vertices.push(precalculatedX[i]);
-        vertices.push(j * deltaLongitude);
-        vertices.push(precalculatedZ[i] - t);
+        vertices.push(0);
+        vertices.push(precalculatedZ[i]);
       }
-    }
-
-    // Add back face degenerate vertices
-    for (var i = 0; i < r; i++) {
-      vertices.push(precalculatedX[i]);
-      vertices.push(1);
-      vertices.push(precalculatedZ[i] - t / 2);
-    }
-
-    for (var i = r - 1 ; i >= 0; i--) {
-      vertices.push(precalculatedX[i]);
-      vertices.push(1);
-      vertices.push(precalculatedZ[i] - t / 2);
     }
 
     // Build buffers
     var buffers = new sg.geometries.BufferGenerator(this.gl);
     this.vertexBuffer = buffers.buildVertexBuffer(vertices);
-    this.indexBuffer = buffers.buildClosedTriangularMeshIndices(2 * r, l + 2);
+    this.indexBuffer = buffers.buildOpenTriangularMeshIndices(r, l);
   };
 
   sg.geometries.Arc.prototype.draw = function(v, m) {
-    this.context.shaders.basic.use();
     mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
+    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
 
-    var attribute = this.context.shaders.basic.getPositionAttribute();
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    this.context.shader.setNormalMatrix(this.normalMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+
+    var position = this.context.shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
+
+    var normal = this.context.shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(

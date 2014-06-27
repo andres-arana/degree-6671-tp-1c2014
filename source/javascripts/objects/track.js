@@ -79,14 +79,32 @@ sg.objects = sg.objects || {};
       baseProfile,
       this.path.transform(baseTransform),
       16, 128);
+
+    this.baseAmbient = vec3.fromValues(0.4, 0.4, 0.25);
+    this.baseDiffuse = vec3.fromValues(0.4, 0.4, 0.25);
+    this.baseSpecular = vec3.fromValues(0, 0, 0);
+    this.baseShininess = 1;
+
+    this.trackAmbient = vec3.fromValues(0.25, 0.25, 0.4);
+    this.trackDiffuse = vec3.fromValues(0.25, 0.25, 0.4);
+    this.trackSpecular = vec3.fromValues(0.25, 0.25, 0.4);
+    this.trackShininess = 100;
   };
 
   sg.objects.Track.prototype.draw = function(v, m) {
-    this.context.shaders.basic.setColor(vec4.fromValues(0.5, 0.5, 0.8, 1));
+    this.context.shader.setAmbient(this.trackAmbient);
+    this.context.shader.setDiffuse(this.trackDiffuse);
+    this.context.shader.setSpecular(this.trackSpecular);
+    this.context.shader.setShininess(this.trackShininess);
+
     this.innerTrack.draw(v, m);
     this.outerTrack.draw(v, m);
 
-    this.context.shaders.basic.setColor(vec4.fromValues(0.8, 0.8, 0.5, 1));
+    this.context.shader.setAmbient(this.baseAmbient);
+    this.context.shader.setDiffuse(this.baseDiffuse);
+    this.context.shader.setSpecular(this.baseSpecular);
+    this.context.shader.setShininess(this.baseShininess);
+
     this.base.draw(v, m);
   };
 

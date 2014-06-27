@@ -2,24 +2,23 @@ var sg = sg || {};
 sg.geometries = sg.geometries || {};
 
 (function() {
-
   var W = 200;
   var H = 200;
 
-  function clampIndex(index, min, max) {
-    if (index < min) {
-      return min;
-    } else if (index > max) {
-      return max;
+  function clampHorizontalIndex(index, def) {
+    if (def % W == 0 && index < def) {
+      return def;
+    } else if (def % W == W - 1 && index > def) {
+      return def
     } else {
       return index;
     }
   };
 
-  function clampIndexWithDefault(index, min, max, def) {
-    if (index < min) {
+  function clampVerticalIndex(index, def) {
+    if (index < 0) {
       return def;
-    } else if (index > max) {
+    } else if (index > (W * H) - 1) {
       return def;
     } else {
       return index;
@@ -61,18 +60,19 @@ sg.geometries = sg.geometries || {};
 
         var currentIndex = i * H + j;
 
-        var leftIndex = clampIndex(i * H + j - 1, 0, size - 1);
-        var rightIndex = clampIndex(i * H + j + 1, 0, size - 1);
+        var leftIndex = clampHorizontalIndex(i * H + j - 1, currentIndex);
+        var rightIndex = clampHorizontalIndex(i * H + j + 1, currentIndex);
         var dfdx = (heightData[rightIndex] - heightData[leftIndex]) / 2;
 
-        var topIndex = clampIndexWithDefault((i - 1) * H + j, 0, size - 1, currentIndex);
-        var botIndex = clampIndexWithDefault((i + 1) * H + j, 0, size - 1, currentIndex);
+        var topIndex = clampVerticalIndex((i - 1) * H + j, currentIndex);
+        var botIndex = clampVerticalIndex((i + 1) * H + j, currentIndex);
         var dfdy = (heightData[botIndex] - heightData[topIndex]) / 2;
 
         // Vertex position
-        vertices.push(x);
-        vertices.push(y);
-        vertices.push(heightData[currentIndex]);
+        var position = vec3.fromValues(x, y, heightData[currentIndex]);
+        vertices.push(position[0]);
+        vertices.push(position[1]);
+        vertices.push(position[2]);
 
         // Vertex normal
         // (tg x bitg)
@@ -81,22 +81,6 @@ sg.geometries = sg.geometries || {};
         vertices.push(normal[0]);
         vertices.push(normal[1]);
         vertices.push(normal[2]);
-
-        // Vertex tg
-        // (1, 0, dfdx)
-        var tg = vec3.fromValues(1, 0, dfdx);
-        vec3.normalize(tg, tg);
-        vertices.push(tg[0]);
-        vertices.push(tg[1]);
-        vertices.push(tg[2]);
-
-        // Vertex bitg
-        // (0, 1, dfdy)
-        var bitg = vec3.fromValues(0, 1, dfdy);
-        vec3.normalize(bitg, bitg);
-        vertices.push(bitg[0]);
-        vertices.push(bitg[1]);
-        vertices.push(bitg[2]);
       }
     }
 
@@ -116,10 +100,10 @@ sg.geometries = sg.geometries || {};
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
 
     var position = this.context.shader.getPositionAttribute();
-    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 48, 0);
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
 
     var normal = this.context.shader.getNormalAttribute();
-    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 48, 12);
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(

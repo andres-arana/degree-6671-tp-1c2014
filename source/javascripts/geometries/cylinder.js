@@ -8,12 +8,17 @@ sg.geometries = sg.geometries || {};
     this.gl = context.gl;
     this.circle = new sg.paths.Circle(1);
     this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
 
     vertices = [];
     for (var i = 0; i < r; i++) {
       vertices.push(0);
       vertices.push(0);
       vertices.push(0);
+
+      vertices.push(0);
+      vertices.push(0);
+      vertices.push(-1);
     }
 
     var deltaT = (this.circle.upperDomainBound() - this.circle.lowerDomainBound()) / r;
@@ -24,6 +29,10 @@ sg.geometries = sg.geometries || {};
         vertices.push(v[0]);
         vertices.push(v[1]);
         vertices.push(deltaL * i);
+
+        vertices.push(v[0]);
+        vertices.push(v[1]);
+        vertices.push(0);
       }
     }
 
@@ -31,6 +40,10 @@ sg.geometries = sg.geometries || {};
       vertices.push(0);
       vertices.push(0);
       vertices.push(1);
+
+      vertices.push(0);
+      vertices.push(0);
+      vertices.push(-1);
     }
 
     // Build buffers
@@ -40,14 +53,19 @@ sg.geometries = sg.geometries || {};
   };
 
   sg.geometries.Cylinder.prototype.draw = function(v, m) {
-    this.context.shaders.basic.use();
     mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
+    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
 
-    var attribute = this.context.shaders.basic.getPositionAttribute();
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    this.context.shader.setNormalMatrix(this.normalMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+
+    var position = this.context.shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
+
+    var normal = this.context.shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(

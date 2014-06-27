@@ -7,8 +7,8 @@ sg.objects = sg.objects || {};
     this.context = context
 
     this.terrain = new sg.geometries.Terrain(this.context, heightmap);
-    this.terrainAmbient = vec3.fromValues(0.2, 0.4, 0.1);
-    this.terrainDiffuse = vec3.fromValues(0.2, 0.4, 0.1);
+    this.terrainAmbient = vec3.fromValues(0.1, 0.2, 0.05);
+    this.terrainDiffuse = vec3.fromValues(0.3, 0.6, 0.15);
     this.terrainSpecular = vec3.fromValues(0, 0, 0);
     this.terrainShininess = 1;
 

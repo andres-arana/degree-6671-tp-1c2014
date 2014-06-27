@@ -7,43 +7,44 @@ sg.geometries = sg.geometries || {};
     this.context = context;
     this.gl = context.gl;
     this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
 
     var vertices = [
       // Front face
-      -1.0, -1.0,  1.0,
-      1.0, -1.0,  1.0,
-      1.0,  1.0,  1.0,
-      -1.0,  1.0,  1.0,
+      -1 , -1 , 1 , 0 , 0 , 1 ,
+       1 , -1 , 1 , 0 , 0 , 1 ,
+       1 ,  1 , 1 , 0 , 0 , 1 ,
+      -1 ,  1 , 1 , 0 , 0 , 1 ,
 
       // Back face
-      -1.0, -1.0, -1.0,
-      -1.0,  1.0, -1.0,
-      1.0,  1.0, -1.0,
-      1.0, -1.0, -1.0,
+      -1 , -1 , -1 , 0 , 0 , -1 ,
+      -1 ,  1 , -1 , 0 , 0 , -1 ,
+       1 ,  1 , -1 , 0 , 0 , -1 ,
+       1 , -1 , -1 , 0 , 0 , -1 ,
 
       // Top face
-      -1.0,  1.0, -1.0,
-      -1.0,  1.0,  1.0,
-      1.0,  1.0,  1.0,
-      1.0,  1.0, -1.0,
+      -1 , 1 , -1 , 0 , 1 , 0 ,
+      -1 , 1 ,  1 , 0 , 1 , 0 ,
+       1 , 1 ,  1 , 0 , 1 , 0 ,
+       1 , 1 , -1 , 0 , 1 , 0 ,
 
       // Bottom face
-      -1.0, -1.0, -1.0,
-      1.0, -1.0, -1.0,
-      1.0, -1.0,  1.0,
-      -1.0, -1.0,  1.0,
+      -1 , -1 , -1 , 0 , -1 , 0 ,
+       1 , -1 , -1 , 0 , -1 , 0 ,
+       1 , -1 ,  1 , 0 , -1 , 0 ,
+      -1 , -1 ,  1 , 0 , -1 , 0 ,
 
       // Right face
-      1.0, -1.0, -1.0,
-      1.0,  1.0, -1.0,
-      1.0,  1.0,  1.0,
-      1.0, -1.0,  1.0,
+      1 , -1 , -1 , 1 , 0 , 0 ,
+      1 ,  1 , -1 , 1 , 0 , 0 ,
+      1 ,  1 ,  1 , 1 , 0 , 0 ,
+      1 , -1 ,  1 , 1 , 0 , 0 ,
 
       // Left face
-      -1.0, -1.0, -1.0,
-      -1.0, -1.0,  1.0,
-      -1.0,  1.0,  1.0,
-      -1.0,  1.0, -1.0
+      -1 , -1 , -1 , -1 , 0 , 0 ,
+      -1 , -1 ,  1 , -1 , 0 , 0 ,
+      -1 ,  1 ,  1 , -1 , 0 , 0 ,
+      -1 ,  1 , -1 , -1 , 0 , 0 ,
     ];
 
     var indices = [
@@ -62,14 +63,19 @@ sg.geometries = sg.geometries || {};
   };
 
   sg.geometries.Box.prototype.draw = function(v, m) {
-    this.context.shaders.basic.use();
     mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shaders.basic.setModelViewMatrix(this.modelViewMatrix)
+    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
 
-    var attribute = this.context.shaders.basic.getPositionAttribute();
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    this.context.shader.setNormalMatrix(this.normalMatrix);
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-    this.gl.vertexAttribPointer(attribute, 3, this.gl.FLOAT, false, 0, 0);
+
+    var position = this.context.shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
+
+    var normal = this.context.shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(

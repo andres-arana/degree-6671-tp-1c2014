@@ -6,7 +6,7 @@ var sg = sg || {};
     this.context = context;
     this.gl = this.context.gl;
 
-    this.lightDirection = vec3.fromValues(0, 0, 1);
+    this.lightDirection = vec3.fromValues(1, -1, 1);
     this.lightViewMatrix = mat3.create();
     this.transformedLightDirection = vec3.create();
 
@@ -18,7 +18,14 @@ var sg = sg || {};
       vec3.fromValues(0, 0, -20));
 
     this.track = new sg.objects.Track(this.context);
+    this.trackModelMatrix = mat4.create();
+    mat4.translate(
+      this.trackModelMatrix,
+      this.trackModelMatrix,
+      vec3.fromValues(0, 0, -12));
+
     this.train = new sg.objects.Train(this.context, this.track);
+    this.trainMatrix = mat4.create();
 
     this.rotatingCamera = {
       camera: new sg.cameras.Rotating(this.context, vec3.create(), 55),
@@ -59,16 +66,11 @@ var sg = sg || {};
       this.lightViewMatrix);
     this.context.shader.setLightDirection(this.transformedLightDirection);
 
-
-
     this.terrain.draw(viewMatrix, this.terrainModelMatrix);
 
-    // var trackMatrix = mat4.clone(modelMatrix);
-    // mat4.translate(trackMatrix, trackMatrix, vec3.fromValues(0, 0, -12));
-    // this.track.draw(viewMatrix, trackMatrix);
+    this.track.draw(viewMatrix, this.trackModelMatrix);
 
-    // var trainMatrix = mat4.clone(modelMatrix);
-    // this.train.draw(viewMatrix, trainMatrix);
+    this.train.draw(viewMatrix, this.trainMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {
