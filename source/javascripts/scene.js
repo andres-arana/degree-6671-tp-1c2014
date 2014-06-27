@@ -68,9 +68,9 @@ var sg = sg || {};
 
     this.terrain.draw(viewMatrix, this.terrainModelMatrix);
 
-    this.track.draw(viewMatrix, this.trackModelMatrix);
+    // this.track.draw(viewMatrix, this.trackModelMatrix);
 
-    this.train.draw(viewMatrix, this.trainMatrix);
+    // this.train.draw(viewMatrix, this.trainMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {

@@ -82,6 +82,12 @@ sg.geometries = sg.geometries || {};
         vertices.push(normal[0]);
         vertices.push(normal[1]);
         vertices.push(normal[2]);
+
+        // Vertex texture coords
+        // (x, y)
+        var uv = vec2.fromValues(position[0], position[1]);
+        vertices.push((uv[0] + 50) / 100);
+        vertices.push((uv[1] + 50) / 100);
       }
     }
 
@@ -101,10 +107,13 @@ sg.geometries = sg.geometries || {};
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
 
     var position = this.context.shader.getPositionAttribute();
-    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
+    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 32, 0);
 
     var normal = this.context.shader.getNormalAttribute();
-    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
+    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 32, 12);
+
+    var uv = this.context.shader.getUVAttribute();
+    this.gl.vertexAttribPointer(uv, 2, this.gl.FLOAT, false, 32, 24);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
     this.gl.drawElements(
