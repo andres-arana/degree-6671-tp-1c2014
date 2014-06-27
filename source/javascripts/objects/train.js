@@ -21,7 +21,7 @@ sg.objects = sg.objects || {};
 
     this.bodyAmbient = vec3.fromValues(0.4, 0.1, 0.1);
     this.bodyDiffuse = vec3.fromValues(0.4, 0.1, 0.1);
-    this.bodySpecular = vec3.fromValues(0.4, 0.1, 0.1);
+    this.bodySpecular = vec3.fromValues(0.1, 0.1, 0.1);
     this.bodyShininess = 100;
 
     this.roofAmbient = vec3.fromValues(0.4, 0.4, 0.1);

@@ -88,7 +88,7 @@ sg.objects = sg.objects || {};
     this.trackAmbient = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackDiffuse = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackSpecular = vec3.fromValues(0.25, 0.25, 0.4);
-    this.trackShininess = 100;
+    this.trackShininess = 500;
   };
 
   sg.objects.Track.prototype.draw = function(v, m) {

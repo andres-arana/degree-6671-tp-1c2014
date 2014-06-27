@@ -27,6 +27,7 @@ sg.shaders = sg.shaders || {};
 
     this.positionAttribute = this.gl.getAttribLocation(program, "position");
     this.normalAttribute = this.gl.getAttribLocation(program, "normal");
+    this.uvAttribute = this.gl.getAttribLocation(program, "uv");
 
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
@@ -37,6 +38,9 @@ sg.shaders = sg.shaders || {};
     this.specularUniform = this.gl.getUniformLocation(program, "specularReflectivity");
     this.shininessUniform = this.gl.getUniformLocation(program, "shininess");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
+
+    this.texturesUniform = this.gl.getUniformLocation(program, "useTextures");
+    this.samplerUniform = this.gl.getUniformLocation(program, "textureSampler");
 
     this.shader = program;
   };
@@ -79,12 +83,24 @@ sg.shaders = sg.shaders || {};
     this.gl.uniform3fv(this.lightUniform, direction);
   };
 
+  sg.shaders.Phong.prototype.setUseTextures = function(value) {
+    this.gl.uniform1i(this.texturesUniform, value);
+  };
+
+  sg.shaders.Phong.prototype.setTexture = function(texture) {
+    this.gl.uniform1i(this.samplerUniform, texture);
+  };
+
   sg.shaders.Phong.prototype.getPositionAttribute = function() {
     return this.positionAttribute;
   };
 
   sg.shaders.Phong.prototype.getNormalAttribute = function() {
     return this.normalAttribute;
+  };
+
+  sg.shaders.Phong.prototype.getUVAttribute = function() {
+    return this.uvAttribute;
   };
 
 })();

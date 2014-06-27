@@ -40,8 +40,7 @@
 
   function startApplication() {
     var canvas = document.getElementById("main-canvas");
-    var heightmap = document.getElementById("heightmap");
-    var application = new sg.Application(canvas, heightmap);
+    var application = new sg.Application(canvas);
 
     var canvasClicked = function() {
       normalizeRequestPointerLock(canvas).
@@ -76,7 +75,7 @@
   };
 
   document.addEventListener("DOMContentLoaded", function() {
-    imagesLoaded(".image-data", startApplication);
+    imagesLoaded(document, startApplication);
   });
 
 })();

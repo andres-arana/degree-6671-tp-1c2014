@@ -10,7 +10,7 @@ var sg = sg || {};
     this.lightViewMatrix = mat3.create();
     this.transformedLightDirection = vec3.create();
 
-    this.terrain = new sg.objects.Terrain(this.context, heightmap);
+    this.terrain = new sg.objects.Terrain(this.context);
     this.terrainModelMatrix = mat4.create();
     mat4.translate(
       this.terrainModelMatrix,

@@ -26,13 +26,14 @@ sg.geometries = sg.geometries || {};
   };
 
 
-  sg.geometries.Terrain = function(context, heightmap) {
+  sg.geometries.Terrain = function(context) {
     this.context = context;
     this.gl = context.gl;
     this.modelViewMatrix = mat4.create();
     this.normalMatrix = mat3.create();
 
     // Extract height data from image
+    var heightmap = document.getElementById("heightmap");
     var canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
