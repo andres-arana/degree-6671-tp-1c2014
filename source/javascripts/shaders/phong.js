@@ -89,7 +89,8 @@ sg.shaders = sg.shaders || {};
   };
 
   sg.shaders.Phong.prototype.setTexture = function(texture) {
-    this.gl.uniform1i(this.samplerUniform, texture);
+    texture.bind(0);
+    this.gl.uniform1i(this.samplerUniform, 0);
   };
 
   sg.shaders.Phong.prototype.getPositionAttribute = function() {
