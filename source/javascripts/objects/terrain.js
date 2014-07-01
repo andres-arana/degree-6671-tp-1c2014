@@ -7,39 +7,64 @@ sg.objects = sg.objects || {};
     this.context = context
     this.gl = this.context.gl;
 
-    this.water = new sg.geometries.Water(this.context, 6);
-
-    this.waterAmbient = vec3.fromValues(0.25, 0.25, 0.4);
-    this.waterDiffuse = vec3.fromValues(0.25, 0.25, 0.4);
-    this.waterSpecular = vec3.fromValues(1, 1, 1);
-    this.waterShininess = 500;
-
     this.terrain = new sg.geometries.Terrain(this.context);
-
-    this.terrainAmbient = vec3.fromValues(0.1, 0.2, 0.05);
-    this.terrainDiffuse = vec3.fromValues(0.3, 0.6, 0.15);
-    this.terrainSpecular = vec3.fromValues(0, 0, 0);
-    this.terrainShininess = 1;
-
     this.terrainTexture = new sg.textures.Diffuse(
       this.context,
       "texture-grass",
       {repeat: true});
+
+    this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
   };
 
-  sg.objects.Terrain.prototype.draw = function(v, m) {
-    this.context.shader.setUseTextures(true);
-    this.context.shader.setTexture(this.terrainTexture);
-    this.context.shader.setSpecular(this.terrainSpecular);
-    this.context.shader.setShininess(this.terrainShininess);
-    this.terrain.draw(v, m);
+  sg.objects.Terrain.prototype.draw = function(shader, v, m) {
+    shader.setTexture(this.terrainTexture);
+    this.drawTerrain(this.terrain, shader, v, m);
+  };
 
-    this.context.shader.setUseTextures(false);
-    this.context.shader.setAmbient(this.waterAmbient);
-    this.context.shader.setDiffuse(this.waterDiffuse);
-    this.context.shader.setSpecular(this.waterSpecular);
-    this.context.shader.setShininess(this.waterShininess);
-    this.water.draw(v, m);
+  sg.objects.Terrain.prototype.drawTerrain = function(obj, shader, v, m) {
+    mat4.multiply(this.modelViewMatrix, v, m);
+    shader.setModelViewMatrix(this.modelViewMatrix)
+
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    shader.setNormalMatrix(this.normalMatrix);
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.vertexBuffer);
+
+    var position = shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(
+      position,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.positionOffset);
+
+    var normal = shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(
+      normal,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.normalOffset);
+
+    var uv = shader.getTexCoordsAttribute();
+    this.gl.vertexAttribPointer(
+      uv,
+      2,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.uvOffset);
+
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
+    this.gl.drawElements(
+      this.gl.TRIANGLE_STRIP,
+      obj.indexBuffer.items,
+      this.gl.UNSIGNED_SHORT,
+      0);
+
   };
 
 })();

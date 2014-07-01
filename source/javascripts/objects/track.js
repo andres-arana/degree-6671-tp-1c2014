@@ -4,6 +4,7 @@ sg.objects = sg.objects || {};
 (function() {
   sg.objects.Track = function(context) {
     this.context = context;
+    this.gl = this.context.gl;
 
     var trackProfile = new sg.paths.BSpline(vec2, [
       vec3.fromValues(-0.1, 0),
@@ -89,25 +90,61 @@ sg.objects = sg.objects || {};
     this.trackDiffuse = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackSpecular = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackShininess = 500;
+
+    this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
   };
 
-  sg.objects.Track.prototype.draw = function(v, m) {
-    this.context.shader.setUseTextures(false);
-    this.context.shader.setAmbient(this.trackAmbient);
-    this.context.shader.setDiffuse(this.trackDiffuse);
-    this.context.shader.setSpecular(this.trackSpecular);
-    this.context.shader.setShininess(this.trackShininess);
+  sg.objects.Track.prototype.draw = function(shader, v, m) {
+    shader.setAmbient(this.trackAmbient);
+    shader.setDiffuse(this.trackDiffuse);
+    shader.setSpecular(this.trackSpecular);
+    shader.setShininess(this.trackShininess);
 
-    this.innerTrack.draw(v, m);
-    this.outerTrack.draw(v, m);
+    this.drawExtrusion(this.innerTrack, shader, v, m);
+    this.drawExtrusion(this.outerTrack, shader, v, m);
 
-    this.context.shader.setUseTextures(false);
-    this.context.shader.setAmbient(this.baseAmbient);
-    this.context.shader.setDiffuse(this.baseDiffuse);
-    this.context.shader.setSpecular(this.baseSpecular);
-    this.context.shader.setShininess(this.baseShininess);
+    shader.setAmbient(this.baseAmbient);
+    shader.setDiffuse(this.baseDiffuse);
+    shader.setSpecular(this.baseSpecular);
+    shader.setShininess(this.baseShininess);
 
-    this.base.draw(v, m);
+    this.drawExtrusion(this.base, shader, v, m);
+  };
+
+  sg.objects.Track.prototype.drawExtrusion = function(obj, shader, v, m) {
+    mat4.multiply(this.modelViewMatrix, v, m);
+    shader.setModelViewMatrix(this.modelViewMatrix)
+
+    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
+    shader.setNormalMatrix(this.normalMatrix);
+
+    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.vertexBuffer);
+
+    var position = shader.getPositionAttribute();
+    this.gl.vertexAttribPointer(
+      position,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.positionOffset);
+
+    var normal = shader.getNormalAttribute();
+    this.gl.vertexAttribPointer(
+      normal,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.normalOffset);
+
+    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
+    this.gl.drawElements(
+      this.gl.TRIANGLE_STRIP,
+      obj.indexBuffer.items,
+      this.gl.UNSIGNED_SHORT,
+      0);
   };
 
 })();

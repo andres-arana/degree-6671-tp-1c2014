@@ -17,7 +17,7 @@ sg.textures = sg.textures || {};
 
     this.gl.pixelStorei(
       this.gl.UNPACK_FLIP_Y_WEBGL,
-      true);
+      false);
 
     this.gl.texImage2D(
       this.gl.TEXTURE_2D,
@@ -37,17 +37,19 @@ sg.textures = sg.textures || {};
       this.gl.TEXTURE_MIN_FILTER,
       this.gl.LINEAR_MIPMAP_NEAREST);
 
-    if (options.repeat) {
-      this.gl.texParameteri(
-        this.gl.TEXTURE_2D,
-        this.gl.TEXTURE_WRAP_S,
-        this.gl.REPEAT);
+    var wrapMode = actualOptions.repeat ?
+      this.gl.REPEAT :
+      this.gl.CLAMP_TO_EDGE;
 
-      this.gl.texParameteri(
-        this.gl.TEXTURE_2D,
-        this.gl.TEXTURE_WRAP_T,
-        this.gl.REPEAT);
-    }
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_S,
+      wrapMode);
+
+    this.gl.texParameteri(
+      this.gl.TEXTURE_2D,
+      this.gl.TEXTURE_WRAP_T,
+      wrapMode);
 
     this.gl.generateMipmap(
       this.gl.TEXTURE_2D);

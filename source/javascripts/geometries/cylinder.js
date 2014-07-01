@@ -7,8 +7,6 @@ sg.geometries = sg.geometries || {};
     this.context = context;
     this.gl = context.gl;
     this.circle = new sg.paths.Circle(1);
-    this.modelViewMatrix = mat4.create();
-    this.normalMatrix = mat3.create();
 
     vertices = [];
     for (var i = 0; i < r; i++) {
@@ -50,29 +48,11 @@ sg.geometries = sg.geometries || {};
     var buffers = new sg.geometries.BufferGenerator(this.gl);
     this.vertexBuffer = buffers.buildVertexBuffer(vertices);
     this.indexBuffer = buffers.buildClosedTriangularMeshIndices(r, l + 2);
-  };
 
-  sg.geometries.Cylinder.prototype.draw = function(v, m) {
-    mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
-
-    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
-    this.context.shader.setNormalMatrix(this.normalMatrix);
-
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-
-    var position = this.context.shader.getPositionAttribute();
-    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 24, 0);
-
-    var normal = this.context.shader.getNormalAttribute();
-    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 24, 12);
-
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    this.gl.drawElements(
-      this.gl.TRIANGLE_STRIP,
-      this.indexBuffer.items,
-      this.gl.UNSIGNED_SHORT,
-      0);
+    // Buffer descriptors
+    this.recordLength = 24;
+    this.positionOffset = 0;
+    this.normalOffset = 12;
   };
 
 })();

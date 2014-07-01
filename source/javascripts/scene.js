@@ -17,6 +17,9 @@ var sg = sg || {};
       this.terrainModelMatrix,
       vec3.fromValues(0, 0, -20));
 
+    this.skybox = new sg.objects.Skybox(this.context);
+    this.skyboxModelMatrix = mat4.create();
+
     this.track = new sg.objects.Track(this.context);
     this.trackModelMatrix = mat4.create();
     mat4.translate(
@@ -28,11 +31,11 @@ var sg = sg || {};
     this.trainMatrix = mat4.create();
 
     this.rotatingCamera = {
-      camera: new sg.cameras.Rotating(this.context, vec3.create(), 55),
+      camera: new sg.cameras.Rotating(this.context, vec3.create(), 20),
     };
 
     this.trainFollowingCamera = {
-      camera: new sg.cameras.TrainFollower(this.context, 55, this.train),
+      camera: new sg.cameras.TrainFollower(this.context, 30, this.train),
     };
 
     this.driverCamera = {
@@ -45,8 +48,6 @@ var sg = sg || {};
     this.currentCamera = this.rotatingCamera;
 
     this.gl.enable(this.gl.DEPTH_TEST);
-
-    this.context.shader.use();
   };
 
   sg.Scene.prototype.draw = function() {
@@ -55,22 +56,27 @@ var sg = sg || {};
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
     var viewMatrix = this.currentCamera.camera.getView();
-
-    this.context.shader.setProjectionMatrix(
-      this.currentCamera.camera.getProjection());
-
+    var projectionMatrix = this.currentCamera.camera.getProjection();
     mat3.fromMat4(this.lightViewMatrix, viewMatrix);
     vec3.transformMat3(
       this.transformedLightDirection,
       this.lightDirection,
       this.lightViewMatrix);
-    this.context.shader.setLightDirection(this.transformedLightDirection);
 
-    this.terrain.draw(viewMatrix, this.terrainModelMatrix);
+    var shader = this.context.shaders.basic.use();
+    shader.setProjectionMatrix(projectionMatrix);
+    shader.setLightDirection(this.transformedLightDirection);
+    this.track.draw(shader, viewMatrix, this.trackModelMatrix);
+    this.train.draw(shader, viewMatrix, this.trainMatrix);
 
-    this.track.draw(viewMatrix, this.trackModelMatrix);
+    shader = this.context.shaders.sky.use();
+    shader.setProjectionMatrix(projectionMatrix);
+    this.skybox.draw(shader, viewMatrix, this.skyboxModelMatrix);
 
-    this.train.draw(viewMatrix, this.trainMatrix);
+    shader = this.context.shaders.terrain.use();
+    shader.setProjectionMatrix(projectionMatrix);
+    shader.setLightDirection(this.transformedLightDirection);
+    this.terrain.draw(shader, viewMatrix, this.terrainModelMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {

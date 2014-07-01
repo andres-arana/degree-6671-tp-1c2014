@@ -8,7 +8,11 @@ var sg = sg || {};
     this.gl = WebGLDebugUtils.makeDebugContext(canvas.getContext("webgl"));
     // this.gl = canvas.getContext("webgl");
 
-    this.shader = new sg.shaders.Phong(this.gl);
+    this.shaders = {
+      basic: new sg.shaders.Basic(this.gl),
+      sky: new sg.shaders.Sky(this.gl),
+      terrain: new sg.shaders.Terrain(this.gl),
+    };
   }
 
   sg.Context.prototype.setGLViewport = function() {

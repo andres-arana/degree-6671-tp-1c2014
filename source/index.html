@@ -9,19 +9,47 @@
 <body>
   <div id="info-container">
     <h1>(66.71) Sistemas Gráficos</h1>
-    <h2>Trabajo Práctico 1</h2>
-    <h3>Andrés Arana, P. 86.203</h3>
+    <h2>Andrés Arana, P. 86.203</h2>
     <p><strong>W</strong>: Acercar <strong>S</strong>: Alejar <strong>C</strong>: Cambiar cámara</p>
   </div>
   <div id="canvas-container">
-    <canvas id="main-canvas" width="800" height="600"></canvas>
+    <canvas id="main-canvas" width="1024" height="768"></canvas>
   </div>
   <div>
     <img src="assets/heightmap.gif" class="image-data" id="heightmap">
     <img src="assets/grass.jpg" class="image-data" id="texture-grass">
+    <img src="assets/skybox-front.png" class="image-data" id="texture-skybox-front">
+    <img src="assets/skybox-front.png" class="image-data" id="texture-skybox-front">
   </div>
 
-  <script id="vertex-phong" type="application/vertex" >
+  <script id="vertex-sky" type="application/vertex">
+    attribute vec3 position;
+    attribute vec2 texCoords;
+
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+
+    varying vec2 f_texCoords;
+
+    void main(void) {
+      f_texCoords = texCoords;
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  </script>
+
+  <script id="fragment-sky" type="application/fragment">
+    precision mediump float;
+
+    varying vec2 f_texCoords;
+
+    uniform sampler2D textureSampler;
+
+    void main(void) {
+      gl_FragColor = texture2D(textureSampler, f_texCoords);
+    }
+  </script>
+
+  <script id="vertex-terrain" type="application/vertex" >
     attribute vec3 position;
     attribute vec3 normal;
     attribute vec2 texCoords;
@@ -30,6 +58,68 @@
     uniform mat4 modelViewMatrix;
     uniform mat3 normalMatrix;
 
+    varying vec3 f_position;
+    varying vec3 f_normal;
+    varying vec2 f_texCoords;
+
+    void main(void) {
+      f_position = vec3(modelViewMatrix * vec4(position, 1.0));
+      f_normal = normalize(normalMatrix * normal);
+      f_texCoords = texCoords;
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  </script>
+
+  <script id="fragment-terrain" type="application/fragment" >
+    precision mediump float;
+
+    varying vec3 f_position;
+    varying vec3 f_normal;
+    varying vec2 f_texCoords;
+
+    uniform vec3 lightDirection;
+    uniform sampler2D textureSampler;
+
+    void main(void) {
+      vec3 normal = normalize(f_normal);
+      vec3 light = normalize(lightDirection);
+
+      float lambert = dot(normal, light);
+
+      vec3 textureColor = vec3(texture2D(textureSampler, f_texCoords));
+      vec3 ambient = textureColor * 0.5;
+      vec3 diffuse = textureColor * 0.5 * max(0.0, lambert);
+
+      gl_FragColor = vec4(ambient + diffuse, 1.0);
+    }
+  </script>
+
+  <script id="vertex-basic" type="application/vertex" >
+    attribute vec3 position;
+    attribute vec3 normal;
+
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    uniform mat3 normalMatrix;
+
+    varying vec3 f_position;
+    varying vec3 f_normal;
+
+    void main(void) {
+      f_position = vec3(modelViewMatrix * vec4(position, 1.0));
+      f_normal = normalize(normalMatrix * normal);
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  </script>
+
+  <script id="fragment-basic" type="application/fragment" >
+    precision mediump float;
+
+    varying vec3 f_position;
+    varying vec3 f_normal;
+
     uniform vec3 ambientReflectivity;
     uniform vec3 diffuseReflectivity;
     uniform vec3 specularReflectivity;
@@ -37,72 +127,21 @@
 
     uniform vec3 lightDirection;
 
-    varying vec3 f_position;
-    varying vec3 f_normal;
-    varying vec2 f_uv;
-
-    varying vec3 f_ambientReflectivity;
-    varying vec3 f_diffuseReflectivity;
-    varying vec3 f_specularReflectivity;
-    varying float f_shininess;
-
-    varying vec3 f_lightDirection;
-
-    void main(void) {
-      f_position = vec3(modelViewMatrix * vec4(position, 1.0));
-      f_normal = normalize(normalMatrix * normal);
-      f_ambientReflectivity = ambientReflectivity;
-      f_diffuseReflectivity = diffuseReflectivity;
-      f_specularReflectivity = specularReflectivity;
-      f_shininess = shininess;
-      f_lightDirection = lightDirection;
-      f_uv = texCoords;
-
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  </script>
-
-  <script id="fragment-phong" type="application/fragment" >
-    precision mediump float;
-    varying vec3 f_position;
-    varying vec3 f_normal;
-    varying vec2 f_uv;
-
-    varying vec3 f_ambientReflectivity;
-    varying vec3 f_diffuseReflectivity;
-    varying vec3 f_specularReflectivity;
-    varying float f_shininess;
-
-    varying vec3 f_lightDirection;
-
-    uniform bool useTextures;
-    uniform sampler2D textureSampler;
-
     void main(void) {
       vec3 normal = normalize(f_normal);
       vec3 eye = normalize(f_position - vec3(0.0, 0.0, 0.0));
-      vec3 light = normalize(f_lightDirection);
-
-      vec3 ambient;
-      vec3 diffuse;
-      vec3 specular;
-      vec3 textureColor;
+      vec3 light = normalize(lightDirection);
 
       float lambert = dot(normal, light);
 
-      if (useTextures) {
-        textureColor = vec3(texture2D(textureSampler, vec2(f_uv.s, f_uv.t)));
-        ambient = textureColor * 0.1;
-        diffuse = textureColor * 0.9 * max(0.0, lambert);
-      } else {
-        ambient = f_ambientReflectivity;
-        diffuse = f_diffuseReflectivity * max(0.0, lambert);
-      }
+      vec3 ambient = ambientReflectivity;
+      vec3 diffuse = diffuseReflectivity * max(0.0, lambert);
+      vec3 specular;
 
       if (lambert < 0.0) {
         specular = vec3(0.0, 0.0, 0.0);
       } else {
-        specular = f_specularReflectivity * pow(max(0.0, dot(reflect(light, normal), eye)), f_shininess);
+        specular = specularReflectivity * pow(max(0.0, dot(reflect(light, normal), eye)), shininess);
       }
 
       gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
@@ -132,7 +171,9 @@
 
   <!-- Shaders -->
   <script src="javascripts/shaders/utilities.js"></script>
-  <script src="javascripts/shaders/phong.js"></script>
+  <script src="javascripts/shaders/basic.js"></script>
+  <script src="javascripts/shaders/terrain.js"></script>
+  <script src="javascripts/shaders/sky.js"></script>
 
   <!-- Geometries -->
   <script src="javascripts/geometries/buffer_generator.js"></script>
@@ -143,6 +184,7 @@
   <script src="javascripts/geometries/triangular_box.js"></script>
   <script src="javascripts/geometries/arc.js"></script>
   <script src="javascripts/geometries/extrusion.js"></script>
+  <script src="javascripts/geometries/rectangle.js"></script>
 
   <!-- Textures -->
   <script src="javascripts/textures/diffuse.js"></script>
@@ -151,6 +193,7 @@
   <script src="javascripts/objects/terrain.js"></script>
   <script src="javascripts/objects/train.js"></script>
   <script src="javascripts/objects/track.js"></script>
+  <script src="javascripts/objects/skybox.js"></script>
 
   <!-- Scene and application definition -->
   <script src="javascripts/context.js"></script>

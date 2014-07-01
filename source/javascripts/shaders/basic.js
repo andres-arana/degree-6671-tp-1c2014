@@ -3,18 +3,18 @@ sg.shaders = sg.shaders || {};
 
 (function() {
 
-  sg.shaders.Phong = function(gl) {
+  sg.shaders.Basic = function(gl) {
     this.gl = gl;
 
     var fragmentShader = sg.shaders.utilities.compileShader(
       this.gl,
       this.gl.FRAGMENT_SHADER,
-      "fragment-phong");
+      "fragment-basic");
 
     var vertexShader = sg.shaders.utilities.compileShader(
       this.gl,
       this.gl.VERTEX_SHADER,
-      "vertex-phong");
+      "vertex-basic");
 
     var program = this.gl.createProgram();
     this.gl.attachShader(program, vertexShader);
@@ -27,7 +27,6 @@ sg.shaders = sg.shaders || {};
 
     this.positionAttribute = this.gl.getAttribLocation(program, "position");
     this.normalAttribute = this.gl.getAttribLocation(program, "normal");
-    this.uvAttribute = this.gl.getAttribLocation(program, "texCoords");
 
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
@@ -39,70 +38,54 @@ sg.shaders = sg.shaders || {};
     this.shininessUniform = this.gl.getUniformLocation(program, "shininess");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
 
-    this.texturesUniform = this.gl.getUniformLocation(program, "useTextures");
-    this.samplerUniform = this.gl.getUniformLocation(program, "textureSampler");
-
     this.shader = program;
   };
 
-  sg.shaders.Phong.prototype.use = function() {
+  sg.shaders.Basic.prototype.use = function() {
     this.gl.useProgram(this.shader);
     this.gl.enableVertexAttribArray(this.positionAttribute);
     this.gl.enableVertexAttribArray(this.normalAttribute);
-    this.gl.enableVertexAttribArray(this.uvAttribute);
+    return this;
   };
 
-  sg.shaders.Phong.prototype.setProjectionMatrix = function(m) {
+  sg.shaders.Basic.prototype.setProjectionMatrix = function(m) {
     this.gl.uniformMatrix4fv(this.projectionUniform, false, m);
   };
 
-  sg.shaders.Phong.prototype.setModelViewMatrix = function(m) {
+  sg.shaders.Basic.prototype.setModelViewMatrix = function(m) {
     this.gl.uniformMatrix4fv(this.modelViewUniform, false, m);
   };
 
-  sg.shaders.Phong.prototype.setNormalMatrix = function(m) {
+  sg.shaders.Basic.prototype.setNormalMatrix = function(m) {
     this.gl.uniformMatrix3fv(this.normalUniform, false, m);
   };
 
-  sg.shaders.Phong.prototype.setAmbient = function(color) {
+  sg.shaders.Basic.prototype.setAmbient = function(color) {
     this.gl.uniform3fv(this.ambientUniform, color);
   }
 
-  sg.shaders.Phong.prototype.setDiffuse = function(color) {
+  sg.shaders.Basic.prototype.setDiffuse = function(color) {
     this.gl.uniform3fv(this.diffuseUniform, color);
   }
 
-  sg.shaders.Phong.prototype.setSpecular = function(color) {
+  sg.shaders.Basic.prototype.setSpecular = function(color) {
     this.gl.uniform3fv(this.specularUniform, color);
   }
 
-  sg.shaders.Phong.prototype.setShininess = function(value) {
+  sg.shaders.Basic.prototype.setShininess = function(value) {
     this.gl.uniform1f(this.shininessUniform, value);
   }
 
-  sg.shaders.Phong.prototype.setLightDirection = function(direction) {
+  sg.shaders.Basic.prototype.setLightDirection = function(direction) {
     this.gl.uniform3fv(this.lightUniform, direction);
   };
 
-  sg.shaders.Phong.prototype.setUseTextures = function(value) {
-    this.gl.uniform1i(this.texturesUniform, value);
-  };
-
-  sg.shaders.Phong.prototype.setTexture = function(texture) {
-    texture.bind(0);
-    this.gl.uniform1i(this.samplerUniform, 0);
-  };
-
-  sg.shaders.Phong.prototype.getPositionAttribute = function() {
+  sg.shaders.Basic.prototype.getPositionAttribute = function() {
     return this.positionAttribute;
   };
 
-  sg.shaders.Phong.prototype.getNormalAttribute = function() {
+  sg.shaders.Basic.prototype.getNormalAttribute = function() {
     return this.normalAttribute;
-  };
-
-  sg.shaders.Phong.prototype.getUVAttribute = function() {
-    return this.uvAttribute;
   };
 
 })();
