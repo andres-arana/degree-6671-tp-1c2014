@@ -19,6 +19,35 @@ sg.objects = sg.objects || {};
     mat4.identity(transform);
     mat4.translate(transform, transform, vec3.fromValues(0, 100, 0));
     mat4.scale(transform, transform, vec3.fromValues(100, 100, 100));
+    mat4.rotateZ(transform, transform, -Math.PI);
+    this.planes.push({texture: texture, transform: mat4.clone(transform)});
+
+    texture = new sg.textures.Diffuse(this.context, "texture-skybox-left");
+    mat4.identity(transform);
+    mat4.translate(transform, transform, vec3.fromValues(-100, 0, 0));
+    mat4.scale(transform, transform, vec3.fromValues(100, 100, 100));
+    mat4.rotateZ(transform, transform, -Math.PI / 2);
+    this.planes.push({texture: texture, transform: mat4.clone(transform)});
+
+    texture = new sg.textures.Diffuse(this.context, "texture-skybox-back");
+    mat4.identity(transform);
+    mat4.translate(transform, transform, vec3.fromValues(0, -100, 0));
+    mat4.scale(transform, transform, vec3.fromValues(100, 100, 100));
+    this.planes.push({texture: texture, transform: mat4.clone(transform)});
+
+    texture = new sg.textures.Diffuse(this.context, "texture-skybox-right");
+    mat4.identity(transform);
+    mat4.translate(transform, transform, vec3.fromValues(100, 0, 0));
+    mat4.scale(transform, transform, vec3.fromValues(100, 100, 100));
+    mat4.rotateZ(transform, transform, Math.PI / 2);
+    this.planes.push({texture: texture, transform: mat4.clone(transform)});
+
+    texture = new sg.textures.Diffuse(this.context, "texture-skybox-top");
+    mat4.identity(transform);
+    mat4.translate(transform, transform, vec3.fromValues(0, 0, 100));
+    mat4.scale(transform, transform, vec3.fromValues(100, 100, 100));
+    mat4.rotateZ(transform, transform, -Math.PI / 2);
+    mat4.rotateX(transform, transform, -Math.PI / 2);
     this.planes.push({texture: texture, transform: mat4.clone(transform)});
 
     this.modelViewMatrix = mat4.create();

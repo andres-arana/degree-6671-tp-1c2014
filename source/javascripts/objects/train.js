@@ -300,7 +300,7 @@ sg.objects = sg.objects || {};
   sg.objects.Train.prototype.tick = function(delta) {
     this.positionDirty = true;
     this.derivativeDirty = true;
-    this.positionTick += delta * 0.00025;
+    this.positionTick += delta * 0.0001;
     if (this.positionTick >= this.track.path.upperDomainBound()) {
       this.positionTick -= this.track.path.upperDomainBound();
     }
