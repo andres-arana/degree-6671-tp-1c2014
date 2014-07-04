@@ -27,6 +27,14 @@ var sg = sg || {};
       this.trackModelMatrix,
       vec3.fromValues(0, 0, -12));
 
+    this.trackBase = new sg.objects.TrackBase(this.context);
+    this.trackBaseModelMatrix = mat4.create();
+    mat4.translate(
+      this.trackBaseModelMatrix,
+      this.trackBaseModelMatrix,
+      vec3.fromValues(0, 0, -12));
+
+
     this.train = new sg.objects.Train(this.context, this.track);
     this.trainMatrix = mat4.create();
 
@@ -66,8 +74,13 @@ var sg = sg || {};
     var shader = this.context.shaders.basic.use();
     shader.setProjectionMatrix(projectionMatrix);
     shader.setLightDirection(this.transformedLightDirection);
-    this.track.draw(shader, viewMatrix, this.trackModelMatrix);
     this.train.draw(shader, viewMatrix, this.trainMatrix);
+    this.track.draw(shader, viewMatrix, this.trackModelMatrix);
+
+    shader = this.context.shaders.textured.use();
+    shader.setProjectionMatrix(projectionMatrix);
+    shader.setLightDirection(this.transformedLightDirection);
+    this.trackBase.draw(shader, viewMatrix, this.trackBaseModelMatrix);
 
     shader = this.context.shaders.sky.use();
     shader.setProjectionMatrix(projectionMatrix);

@@ -50,6 +50,10 @@ sg.geometries = sg.geometries || {};
         vertices.push(normal[1]);
         vertices.push(normal[2]);
 
+        var uv = vec2.fromValues(j * deltaT, i * deltaL * 5);
+        vertices.push(uv[0]);
+        vertices.push(uv[1]);
+
       }
     }
 
@@ -59,9 +63,10 @@ sg.geometries = sg.geometries || {};
     this.indexBuffer = buffers.buildOpenTriangularMeshIndices(r + 1, l + 1);
 
     // Setup record descriptions
-    this.recordLength = 24;
+    this.recordLength = 32;
     this.positionOffset = 0;
     this.normalOffset = 12;
+    this.uvOffset = 24;
   };
 
 })();

@@ -5,6 +5,21 @@ sg.objects = sg.objects || {};
   sg.objects.Track = function(context) {
     this.context = context;
     this.gl = this.context.gl;
+    this.modelViewMatrix = mat4.create();
+    this.normalMatrix = mat3.create();
+
+    this.path = new sg.paths.BSpline(vec3, [
+      vec3.fromValues(40, -20, 1),
+      vec3.fromValues(20, 35, 1),
+      vec3.fromValues(0, 30, 1),
+      vec3.fromValues(-20, 25, 1),
+      vec3.fromValues(-30, 0, 1),
+      vec3.fromValues(-40, -20, 1),
+      vec3.fromValues(-30, -46, 1),
+      vec3.fromValues(10, -30, 1),
+      vec3.fromValues(40, -20, 1),
+      vec3.fromValues(20, 35, 1),
+    ]);
 
     var trackProfile = new sg.paths.BSpline(vec2, [
       vec3.fromValues(-0.1, 0),
@@ -25,19 +40,6 @@ sg.objects = sg.objects || {};
       vec3.fromValues(-0.1, -0.2),
       vec3.fromValues(-0.1, 0),
       vec3.fromValues(-0.1, 0.2),
-    ]);
-
-    this.path = new sg.paths.BSpline(vec3, [
-      vec3.fromValues(40, -20, 1),
-      vec3.fromValues(20, 35, 1),
-      vec3.fromValues(0, 30, 1),
-      vec3.fromValues(-20, 25, 1),
-      vec3.fromValues(-30, 0, 1),
-      vec3.fromValues(-40, -20, 1),
-      vec3.fromValues(-30, -46, 1),
-      vec3.fromValues(10, -30, 1),
-      vec3.fromValues(40, -20, 1),
-      vec3.fromValues(20, 35, 1),
     ]);
 
     var innerScale = 29/30;
@@ -64,35 +66,10 @@ sg.objects = sg.objects || {};
       this.path.transform(outerTransform),
       32, 128);
 
-    var baseProfile = new sg.paths.Bezier(vec2,
-      vec2.fromValues(-4, 0),
-      vec2.fromValues(-2.75, 3),
-      vec2.fromValues(2.75, 3),
-      vec2.fromValues(4, 0));
-
-    var baseTransform = mat4.translate(
-      mat4.create(),
-      mat4.create(),
-      vec3.fromValues(0, 0, -2.5));
-
-    this.base = new sg.geometries.Extrussion(
-      this.context,
-      baseProfile,
-      this.path.transform(baseTransform),
-      16, 128);
-
-    this.baseAmbient = vec3.fromValues(0.4, 0.4, 0.25);
-    this.baseDiffuse = vec3.fromValues(0.4, 0.4, 0.25);
-    this.baseSpecular = vec3.fromValues(0, 0, 0);
-    this.baseShininess = 1;
-
     this.trackAmbient = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackDiffuse = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackSpecular = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackShininess = 500;
-
-    this.modelViewMatrix = mat4.create();
-    this.normalMatrix = mat3.create();
   };
 
   sg.objects.Track.prototype.draw = function(shader, v, m) {
@@ -103,13 +80,6 @@ sg.objects = sg.objects || {};
 
     this.drawExtrusion(this.innerTrack, shader, v, m);
     this.drawExtrusion(this.outerTrack, shader, v, m);
-
-    shader.setAmbient(this.baseAmbient);
-    shader.setDiffuse(this.baseDiffuse);
-    shader.setSpecular(this.baseSpecular);
-    shader.setShininess(this.baseShininess);
-
-    this.drawExtrusion(this.base, shader, v, m);
   };
 
   sg.objects.Track.prototype.drawExtrusion = function(obj, shader, v, m) {
