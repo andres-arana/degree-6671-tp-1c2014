@@ -7,7 +7,11 @@ sg.objects = sg.objects || {};
     this.context = context
     this.gl = this.context.gl;
 
-    this.terrain = new sg.geometries.Terrain(this.context);
+    this.terrain = new sg.geometries.Terrain(
+      this.context,
+      "terrain-big",
+      2,
+      200, 200);
     this.terrainTexture = new sg.textures.Diffuse(
       this.context,
       "texture-grass",
@@ -19,6 +23,7 @@ sg.objects = sg.objects || {};
 
   sg.objects.Terrain.prototype.draw = function(shader, v, m) {
     shader.setTexture(this.terrainTexture);
+
     this.drawTerrain(this.terrain, shader, v, m);
   };
 

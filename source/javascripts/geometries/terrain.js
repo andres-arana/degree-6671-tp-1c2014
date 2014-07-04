@@ -2,8 +2,8 @@ var sg = sg || {};
 sg.geometries = sg.geometries || {};
 
 (function() {
-  var W = 200;
-  var H = 200;
+  var W = 400;
+  var H = 400;
 
   function clampHorizontalIndex(index, def) {
     if (def % W == 0 && index < def) {
@@ -26,12 +26,12 @@ sg.geometries = sg.geometries || {};
   };
 
 
-  sg.geometries.Terrain = function(context) {
+  sg.geometries.Terrain = function(context, id, step, cuadWidth, cuadHeight) {
     this.context = context;
     this.gl = context.gl;
 
     // Extract height data from image
-    var heightmap = document.getElementById("heightmap");
+    var heightmap = document.getElementById(id);
     var canvas = document.createElement('canvas');
     canvas.width = W;
     canvas.height = H;
@@ -52,10 +52,10 @@ sg.geometries = sg.geometries || {};
 
     // Build triangle mesh
     var vertices = [];
-    for (var i = 0; i < W; i++) {
-      var x = (i * 100 / W) - 50;
-      for (var j = 0; j < H; j++) {
-        var y = (j * 100 / H) - 50;
+    for (var i = 0; i < W; i += step) {
+      var x = (i * cuadWidth / W) - cuadWidth / 2;
+      for (var j = 0; j < H; j += step) {
+        var y = (j * cuadHeight / H) - cuadHeight / 2;
 
         var currentIndex = i * H + j;
 
@@ -83,7 +83,9 @@ sg.geometries = sg.geometries || {};
 
         // Vertex texture coords
         // (x, y)
-        var uv = vec2.fromValues((position[0] + 50) / 10, (position[1] + 50) / 10);
+        var uv = vec2.fromValues(
+          (position[0] + cuadWidth / 2) / 10,
+          (position[1] + cuadHeight / 2) / 10);
         vertices.push(uv[0]);
         vertices.push(uv[1]);
       }
@@ -92,7 +94,7 @@ sg.geometries = sg.geometries || {};
     // Build buffers
     var buffers = new sg.geometries.BufferGenerator(this.gl);
     this.vertexBuffer = buffers.buildVertexBuffer(vertices);
-    this.indexBuffer = buffers.buildOpenTriangularMeshIndices(W, H);
+    this.indexBuffer = buffers.buildOpenTriangularMeshIndices(W / step, H / step);
 
     // Buffer descriptors
     this.recordLength = 32;
