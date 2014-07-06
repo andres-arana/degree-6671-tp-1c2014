@@ -11,6 +11,7 @@ sg.geometries = sg.geometries || {};
 
     var deltaT = (curve.upperDomainBound() - curve.lowerDomainBound()) / r;
     var deltaL = (path.upperDomainBound() - path.lowerDomainBound()) / l;
+    var accumulatedDistance = 0;
 
     for (var i = 0; i <= l; i++) {
       var location = path.evaluate(i * deltaL);
@@ -31,6 +32,13 @@ sg.geometries = sg.geometries || {};
       var rotation = mat4.create();
       var rotation = mat4.rotateZ(rotation, rotation, angle);
 
+      var previousLocation = path.evaluate(Math.cycle(
+        (i - 1) * deltaL,
+        path.lowerDomainBound(),
+        path.upperDomainBound()));
+      var distance = vec3.distance(location, previousLocation);
+      accumulatedDistance += distance / 10;
+
       for (var j = 0; j <= r; j++) {
         var rawVertex = curve.evaluate(j * deltaT);
         var vertex = vec4.fromValues(rawVertex[0], 0, rawVertex[1], 1);
@@ -50,10 +58,9 @@ sg.geometries = sg.geometries || {};
         vertices.push(normal[1]);
         vertices.push(normal[2]);
 
-        var uv = vec2.fromValues(j * deltaT, i * deltaL * 5);
+        var uv = vec2.fromValues(j * deltaT, accumulatedDistance);
         vertices.push(uv[0]);
         vertices.push(uv[1]);
-
       }
     }
 
