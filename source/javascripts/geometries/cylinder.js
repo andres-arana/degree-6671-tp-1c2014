@@ -17,6 +17,17 @@ sg.geometries = sg.geometries || {};
       vertices.push(0);
       vertices.push(0);
       vertices.push(-1);
+
+      vertices.push(1);
+      vertices.push(0);
+      vertices.push(0);
+
+      vertices.push(0);
+      vertices.push(1);
+      vertices.push(0);
+
+      vertices.push(0.5);
+      vertices.push(0.5);
     }
 
     var deltaT = (this.circle.upperDomainBound() - this.circle.lowerDomainBound()) / r;
@@ -24,6 +35,7 @@ sg.geometries = sg.geometries || {};
     for (var i = 0; i < l; i++) {
       for (var j = 0; j < r; j++) {
         var v = this.circle.evaluate(deltaT * j);
+        var d = this.circle.derivative(deltaT * j);
         vertices.push(v[0]);
         vertices.push(v[1]);
         vertices.push(deltaL * i);
@@ -31,6 +43,17 @@ sg.geometries = sg.geometries || {};
         vertices.push(v[0]);
         vertices.push(v[1]);
         vertices.push(0);
+
+        vertices.push(d[0]);
+        vertices.push(d[1]);
+        vertices.push(0);
+
+        vertices.push(0);
+        vertices.push(0);
+        vertices.push(1);
+
+        vertices.push(deltaT * j);
+        vertices.push(deltaL * j);
       }
     }
 
@@ -41,7 +64,18 @@ sg.geometries = sg.geometries || {};
 
       vertices.push(0);
       vertices.push(0);
-      vertices.push(-1);
+      vertices.push(1);
+
+      vertices.push(1);
+      vertices.push(0);
+      vertices.push(0);
+
+      vertices.push(0);
+      vertices.push(1);
+      vertices.push(0);
+
+      vertices.push(0.5);
+      vertices.push(0.5);
     }
 
     // Build buffers
@@ -50,9 +84,12 @@ sg.geometries = sg.geometries || {};
     this.indexBuffer = buffers.buildClosedTriangularMeshIndices(r, l + 2);
 
     // Buffer descriptors
-    this.recordLength = 24;
+    this.recordLength = 56;
     this.positionOffset = 0;
     this.normalOffset = 12;
+    this.tangentOffset = 24;
+    this.bitangentOffset = 36;
+    this.uvOffset = 48;
   };
 
 })();

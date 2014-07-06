@@ -76,10 +76,19 @@ sg.geometries = sg.geometries || {};
         // Vertex normal
         // (tg x bitg)
         var normal = vec3.fromValues(-dfdx, dfdy, 1);
-        vec3.normalize(normal, normal);
         vertices.push(normal[0]);
         vertices.push(normal[1]);
         vertices.push(normal[2]);
+
+        var tangent = vec3.fromValues(1, 0, dfdx);
+        vertices.push(tangent[0]);
+        vertices.push(tangent[1]);
+        vertices.push(tangent[2]);
+
+        var bitangent = vec3.fromValues(0, 1, dfdy);
+        vertices.push(bitangent[0]);
+        vertices.push(bitangent[1]);
+        vertices.push(bitangent[2]);
 
         // Vertex texture coords
         // (x, y)
@@ -97,10 +106,12 @@ sg.geometries = sg.geometries || {};
     this.indexBuffer = buffers.buildOpenTriangularMeshIndices(W / step, H / step);
 
     // Buffer descriptors
-    this.recordLength = 32;
+    this.recordLength = 56;
     this.positionOffset = 0;
     this.normalOffset = 12;
-    this.uvOffset = 24;
+    this.tangentOffset = 24;
+    this.bitangentOffset = 36;
+    this.uvOffset = 48;
   };
 
 })();

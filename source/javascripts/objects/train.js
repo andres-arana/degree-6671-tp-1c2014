@@ -198,7 +198,7 @@ sg.objects = sg.objects || {};
     mat4.translate(this.m, this.m, this.pistonProtectorTranslation);
     mat4.scale(this.m, this.m, this.pistonProtectorScale);
     mat4.rotateZ(this.m, this.m, Math.PI / 2);
-    this.drawTriangular(this.box, shader, v, this.m);
+    this.drawTriangular(this.triangular, shader, v, this.m);
 
     // Draw the roof support
     mat4.copy(this.m, this.modelMatrix);

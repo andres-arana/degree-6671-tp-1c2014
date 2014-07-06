@@ -58,6 +58,14 @@ sg.geometries = sg.geometries || {};
         vertices.push(normal[1]);
         vertices.push(normal[2]);
 
+        vertices.push(tangent[0]);
+        vertices.push(tangent[1]);
+        vertices.push(tangent[2]);
+
+        vertices.push(projectionXY[0]);
+        vertices.push(projectionXY[1]);
+        vertices.push(projectionXY[2]);
+
         var uv = vec2.fromValues(j * deltaT, accumulatedDistance);
         vertices.push(uv[0]);
         vertices.push(uv[1]);
@@ -69,11 +77,13 @@ sg.geometries = sg.geometries || {};
     this.vertexBuffer = buffers.buildVertexBuffer(vertices);
     this.indexBuffer = buffers.buildOpenTriangularMeshIndices(r + 1, l + 1);
 
-    // Setup record descriptions
-    this.recordLength = 32;
+    // Buffer descriptors
+    this.recordLength = 56;
     this.positionOffset = 0;
     this.normalOffset = 12;
-    this.uvOffset = 24;
+    this.tangentOffset = 24;
+    this.bitangentOffset = 36;
+    this.uvOffset = 48;
   };
 
 })();
