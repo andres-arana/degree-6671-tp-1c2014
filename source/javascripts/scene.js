@@ -17,6 +17,13 @@ var sg = sg || {};
       this.terrainModelMatrix,
       vec3.fromValues(0, 0, -20));
 
+    this.water = new sg.objects.Water(this.context);
+    this.waterModelMatrix = mat4.create();
+    mat4.translate(
+      this.waterModelMatrix,
+      this.waterModelMatrix,
+      vec3.fromValues(0, 0, -15));
+
     this.skybox = new sg.objects.Skybox(this.context);
     this.skyboxModelMatrix = mat4.create();
 
@@ -77,6 +84,11 @@ var sg = sg || {};
     this.train.draw(shader, viewMatrix, this.trainMatrix);
     this.track.draw(shader, viewMatrix, this.trackModelMatrix);
 
+    shader = this.context.shaders.water.use();
+    shader.setProjectionMatrix(projectionMatrix);
+    shader.setLightDirection(this.transformedLightDirection);
+    this.water.draw(shader, viewMatrix, this.waterModelMatrix);
+
     shader = this.context.shaders.textured.use();
     shader.setProjectionMatrix(projectionMatrix);
     shader.setLightDirection(this.transformedLightDirection);
@@ -95,6 +107,7 @@ var sg = sg || {};
   sg.Scene.prototype.tick = function(delta) {
     this.currentCamera.camera.tick(delta);
     this.train.tick(delta);
+    this.water.tick(delta);
   };
 
   sg.Scene.prototype.onMouseMovement = function(event) {

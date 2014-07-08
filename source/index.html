@@ -156,6 +156,75 @@
     }
   </script>
 
+  <script id="vertex-water" type="application/vertex" >
+    attribute vec3 position;
+
+    uniform mat4 projectionMatrix;
+    uniform mat4 modelViewMatrix;
+    uniform mat3 normalMatrix;
+
+    uniform float phase;
+
+    varying vec3 f_position;
+    varying vec3 f_normal;
+
+    void main(void) {
+      float s = 0.5;
+      float u = 2.0;
+      float A = 0.2;
+
+      float t = 0.5;
+      float v = 2.0;
+      float B = 0.1;
+
+      float z = A * sin(s * position.x + u * phase) + B * sin(t * position.y + v * phase);
+      vec3 actualPosition = vec3(position.x, position.y, position.z + z);
+
+      float dfdx = A * cos(s * position.x + u * phase) * s;
+      float dfdy = B * cos(t * position.y + v * phase) * t;
+      vec3 actualNormal = vec3(-dfdx, -dfdy, 1);
+
+      f_position = vec3(modelViewMatrix * vec4(actualPosition, 1.0));
+      f_normal = normalize(normalMatrix * actualNormal);
+
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(actualPosition, 1.0);
+    }
+  </script>
+
+  <script id="fragment-water" type="application/fragment" >
+    precision mediump float;
+
+    varying vec3 f_position;
+    varying vec3 f_normal;
+
+    uniform vec3 ambientReflectivity;
+    uniform vec3 diffuseReflectivity;
+    uniform vec3 specularReflectivity;
+    uniform float shininess;
+
+    uniform vec3 lightDirection;
+
+    void main(void) {
+      vec3 normal = normalize(f_normal);
+      vec3 eye = normalize(f_position - vec3(0.0, 0.0, 0.0));
+      vec3 light = normalize(lightDirection);
+
+      float lambert = dot(normal, light);
+
+      vec3 ambient = ambientReflectivity;
+      vec3 diffuse = diffuseReflectivity * max(0.0, lambert);
+      vec3 specular;
+
+      if (lambert < 0.0) {
+        specular = vec3(0.0, 0.0, 0.0);
+      } else {
+        specular = specularReflectivity * pow(max(0.0, dot(reflect(light, normal), eye)), shininess);
+      }
+
+      gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
+    }
+  </script>
+
   <script id="vertex-basic" type="application/vertex" >
     attribute vec3 position;
     attribute vec3 normal;
@@ -236,6 +305,7 @@
   <script src="javascripts/shaders/terrain.js"></script>
   <script src="javascripts/shaders/sky.js"></script>
   <script src="javascripts/shaders/textured.js"></script>
+  <script src="javascripts/shaders/water.js"></script>
 
   <!-- Geometries -->
   <script src="javascripts/geometries/buffer_generator.js"></script>
@@ -257,6 +327,7 @@
   <script src="javascripts/objects/track.js"></script>
   <script src="javascripts/objects/trackBase.js"></script>
   <script src="javascripts/objects/skybox.js"></script>
+  <script src="javascripts/objects/water.js"></script>
 
   <!-- Scene and application definition -->
   <script src="javascripts/context.js"></script>

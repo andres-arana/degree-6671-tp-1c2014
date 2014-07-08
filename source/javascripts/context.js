@@ -13,6 +13,7 @@ var sg = sg || {};
       sky: new sg.shaders.Sky(this.gl),
       terrain: new sg.shaders.Terrain(this.gl),
       textured: new sg.shaders.Textured(this.gl),
+      water: new sg.shaders.Water(this.gl),
     };
   }
 

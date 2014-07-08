@@ -3,49 +3,45 @@ sg.geometries = sg.geometries || {};
 
 (function() {
 
-  sg.geometries.Water = function(context, level) {
+  sg.geometries.Water = function(context) {
     this.context = context;
     this.gl = context.gl;
-    this.modelViewMatrix = mat4.create();
-    this.normalMatrix = mat3.create();
 
-    var vertices = [
-      -50, -50, level, 0, 0, 1, 1, 0, 0, 0, 1, 0,
-      50, -50, level, 0, 0, 1, 1, 0, 0, 0, 1, 0,
-      -50, 50, level, 0, 0, 1, 1, 0, 0, 0, 1, 0,
-      50, 50, level, 0, 0, 1, 1, 0, 0, 0, 1, 0,
-    ];
+    var vertices = [];
+    for (i = -50; i <= 50; i++) {
+      for (j = -50; j <= 50; j++) {
+        vertices.push(i);
+        vertices.push(j);
+        vertices.push(0);
 
-    var indices = [
-      0, 1, 2, 3
-    ];
+        vertices.push(0);
+        vertices.push(0);
+        vertices.push(1);
+
+        vertices.push(0);
+        vertices.push(1);
+        vertices.push(0);
+
+        vertices.push(0);
+        vertices.push(0);
+        vertices.push(1);
+
+        vertices.push(i / 10);
+        vertices.push(j / 10);
+      };
+    }
 
     var buffers = new sg.geometries.BufferGenerator(this.gl);
     this.vertexBuffer = buffers.buildVertexBuffer(vertices);
-    this.indexBuffer =  buffers.buildIndexBuffer(indices);
-  };
+    this.indexBuffer =  buffers.buildOpenTriangularMeshIndices(101, 101);
 
-  sg.geometries.Water.prototype.draw = function(v, m) {
-    mat4.multiply(this.modelViewMatrix, v, m);
-    this.context.shader.setModelViewMatrix(this.modelViewMatrix)
-
-    mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);
-    this.context.shader.setNormalMatrix(this.normalMatrix);
-
-    this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-
-    var position = this.context.shader.getPositionAttribute();
-    this.gl.vertexAttribPointer(position, 3, this.gl.FLOAT, false, 48, 0);
-
-    var normal = this.context.shader.getNormalAttribute();
-    this.gl.vertexAttribPointer(normal, 3, this.gl.FLOAT, false, 48, 12);
-
-    this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-    this.gl.drawElements(
-      this.gl.TRIANGLE_STRIP,
-      this.indexBuffer.items,
-      this.gl.UNSIGNED_SHORT,
-      0);
+    // Buffer descriptors
+    this.recordLength = 56;
+    this.positionOffset = 0;
+    this.normalOffset = 12;
+    this.tangentOffset = 24;
+    this.bitangentOffset = 36;
+    this.uvOffset = 48;
   };
 
 })();
