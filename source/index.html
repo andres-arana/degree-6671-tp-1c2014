@@ -24,6 +24,7 @@
     <img src="assets/skybox-back.png" class="image-data" id="texture-skybox-back">
     <img src="assets/skybox-right.png" class="image-data" id="texture-skybox-right">
     <img src="assets/skybox-top.png" class="image-data" id="texture-skybox-top">
+    <img src="assets/waterbump.jpg" class="image-data" id="bump-water">
   </div>
 
   <script id="vertex-sky" type="application/vertex">
@@ -167,25 +168,35 @@
 
     varying vec3 f_position;
     varying vec3 f_normal;
+    varying vec3 f_tangent;
+    varying vec3 f_bitangent;
+    varying vec2 f_texCoords;
 
     void main(void) {
       float s = 0.5;
       float u = 2.0;
-      float A = 0.2;
+      float A = 0.05;
 
       float t = 0.5;
       float v = 2.0;
-      float B = 0.1;
+      float B = 0.05;
 
       float z = A * sin(s * position.x + u * phase) + B * sin(t * position.y + v * phase);
       vec3 actualPosition = vec3(position.x, position.y, position.z + z);
+      f_position = vec3(modelViewMatrix * vec4(actualPosition, 1.0));
 
       float dfdx = A * cos(s * position.x + u * phase) * s;
       float dfdy = B * cos(t * position.y + v * phase) * t;
-      vec3 actualNormal = vec3(-dfdx, -dfdy, 1);
+      vec3 actualTangent = vec3(1, 0, dfdx);
+      f_tangent = normalMatrix * normalize(actualTangent);
 
-      f_position = vec3(modelViewMatrix * vec4(actualPosition, 1.0));
-      f_normal = normalize(normalMatrix * actualNormal);
+      vec3 actualBitangent = vec3(0, 1, dfdy);
+      f_bitangent = normalMatrix * normalize(actualBitangent);
+
+      vec3 actualNormal = cross(actualTangent, actualBitangent);
+      f_normal = normalMatrix * normalize(actualNormal);
+
+      f_texCoords = vec2(position.x / 5.0 + phase / 5.0, position.y / 5.0 + phase / 3.0);
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(actualPosition, 1.0);
     }
@@ -196,6 +207,9 @@
 
     varying vec3 f_position;
     varying vec3 f_normal;
+    varying vec3 f_tangent;
+    varying vec3 f_bitangent;
+    varying vec2 f_texCoords;
 
     uniform vec3 ambientReflectivity;
     uniform vec3 diffuseReflectivity;
@@ -203,13 +217,19 @@
     uniform float shininess;
 
     uniform vec3 lightDirection;
+    uniform sampler2D textureSampler;
 
     void main(void) {
       vec3 normal = normalize(f_normal);
+      vec3 tangent = normalize(f_tangent);
+      vec3 bitangent = normalize(f_bitangent);
       vec3 eye = normalize(f_position - vec3(0.0, 0.0, 0.0));
       vec3 light = normalize(lightDirection);
 
-      float lambert = dot(normal, light);
+      vec3 bumpMapValue = vec3(texture2D(textureSampler, f_texCoords));
+      vec3 actualNormal = normalize(tangent * bumpMapValue.r + bitangent * bumpMapValue.g + normal * bumpMapValue.b);
+
+      float lambert = dot(actualNormal, light);
 
       vec3 ambient = ambientReflectivity;
       vec3 diffuse = diffuseReflectivity * max(0.0, lambert);
@@ -218,10 +238,10 @@
       if (lambert < 0.0) {
         specular = vec3(0.0, 0.0, 0.0);
       } else {
-        specular = specularReflectivity * pow(max(0.0, dot(reflect(light, normal), eye)), shininess);
+        specular = specularReflectivity * pow(max(0.0, dot(reflect(light, actualNormal), eye)), shininess);
       }
 
-      gl_FragColor = vec4(ambient + diffuse + specular, 1.0);
+      gl_FragColor = vec4(ambient + diffuse + specular, 0.95);
     }
   </script>
 

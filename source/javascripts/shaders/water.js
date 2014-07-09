@@ -31,13 +31,13 @@ sg.shaders = sg.shaders || {};
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
     this.normalUniform = this.gl.getUniformLocation(program, "normalMatrix");
 
+    this.phaseUniform = this.gl.getUniformLocation(program, "phase");
     this.ambientUniform = this.gl.getUniformLocation(program, "ambientReflectivity");
     this.diffuseUniform = this.gl.getUniformLocation(program, "diffuseReflectivity");
     this.specularUniform = this.gl.getUniformLocation(program, "specularReflectivity");
     this.shininessUniform = this.gl.getUniformLocation(program, "shininess");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
-
-    this.phaseUniform = this.gl.getUniformLocation(program, "phase");
+    this.samplerUniform = this.gl.getUniformLocation(program, "textureSampler");
 
     this.shader = program;
   };
@@ -82,6 +82,11 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Water.prototype.setPhase = function(phase) {
     this.gl.uniform1f(this.phaseUniform, phase / 500);
+  };
+
+  sg.shaders.Water.prototype.setBumpMap = function(t) {
+    t.bind(0);
+    this.gl.uniform1i(this.samplerUniform, 0);
   };
 
   sg.shaders.Water.prototype.getPositionAttribute = function() {

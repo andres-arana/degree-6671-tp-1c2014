@@ -84,11 +84,6 @@ var sg = sg || {};
     this.train.draw(shader, viewMatrix, this.trainMatrix);
     this.track.draw(shader, viewMatrix, this.trackModelMatrix);
 
-    shader = this.context.shaders.water.use();
-    shader.setProjectionMatrix(projectionMatrix);
-    shader.setLightDirection(this.transformedLightDirection);
-    this.water.draw(shader, viewMatrix, this.waterModelMatrix);
-
     shader = this.context.shaders.textured.use();
     shader.setProjectionMatrix(projectionMatrix);
     shader.setLightDirection(this.transformedLightDirection);
@@ -102,6 +97,11 @@ var sg = sg || {};
     shader.setProjectionMatrix(projectionMatrix);
     shader.setLightDirection(this.transformedLightDirection);
     this.terrain.draw(shader, viewMatrix, this.terrainModelMatrix);
+
+    shader = this.context.shaders.water.use();
+    shader.setProjectionMatrix(projectionMatrix);
+    shader.setLightDirection(this.transformedLightDirection);
+    this.water.draw(shader, viewMatrix, this.waterModelMatrix);
   };
 
   sg.Scene.prototype.tick = function(delta) {

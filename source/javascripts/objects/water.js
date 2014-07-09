@@ -10,12 +10,17 @@ sg.objects = sg.objects || {};
 
     this.water = new sg.geometries.Water(context);
 
-    this.waterAmbient = vec3.fromValues(0.1, 0.1, 0.2);
+    this.waterAmbient = vec3.fromValues(0.3, 0.3, 0.45);
     this.waterDiffuse = vec3.fromValues(0.3, 0.3, 0.45);
     this.waterSpecular = vec3.fromValues(0.5, 0.5, 0.5);
     this.waterShininess = 500;
 
     this.phase = 0;
+
+    this.bumpMap = new sg.textures.Diffuse(
+      this.context,
+      "bump-water",
+      {repeat: true});
   };
 
   sg.objects.Water.prototype.draw = function(shader, v, m) {
@@ -24,9 +29,12 @@ sg.objects = sg.objects || {};
     shader.setSpecular(this.waterSpecular);
     shader.setShininess(this.waterShininess);
     shader.setPhase(this.phase);
+    shader.setBumpMap(this.bumpMap);
 
+    this.gl.blendFunc(this.gl.SRC_COLOR, this.gl.DST_COLOR);
+    this.gl.enable(this.gl.BLEND);
     this.drawWater(this.water, shader, v, m);
-
+    this.gl.disable(this.gl.BLEND);
   };
 
   sg.objects.Water.prototype.tick = function(delta) {
