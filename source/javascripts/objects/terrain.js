@@ -17,12 +17,18 @@ sg.objects = sg.objects || {};
       "texture-grass",
       {repeat: true});
 
+    this.bump = new sg.textures.Diffuse(
+      this.context,
+      "bump-grass",
+      {repeat: true});
+
     this.modelViewMatrix = mat4.create();
     this.normalMatrix = mat3.create();
   };
 
   sg.objects.Terrain.prototype.draw = function(shader, v, m) {
     shader.setTexture(this.terrainTexture);
+    shader.setBumpMap(this.bump);
 
     this.drawTerrain(this.terrain, shader, v, m);
   };
@@ -54,6 +60,24 @@ sg.objects = sg.objects || {};
       false,
       obj.recordLength,
       obj.normalOffset);
+
+    var tangent = shader.getTangentAttribute();
+    this.gl.vertexAttribPointer(
+      tangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.tangentOffset);
+
+    var bitangent = shader.getBitangentAttribute();
+    this.gl.vertexAttribPointer(
+      bitangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.bitangentOffset);
 
     var uv = shader.getTexCoordsAttribute();
     this.gl.vertexAttribPointer(

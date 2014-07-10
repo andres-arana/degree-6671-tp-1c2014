@@ -17,7 +17,7 @@ sg.cameras = sg.cameras || {};
         Math.PI / 4,
         this.context.width / this.context.height,
         0.1,
-        250.0);
+        350.0);
 
     this.viewMatrix = mat4.create();
     this.position = vec3.create();
