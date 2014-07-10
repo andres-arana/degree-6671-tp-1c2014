@@ -70,6 +70,11 @@ sg.objects = sg.objects || {};
     this.trackDiffuse = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackSpecular = vec3.fromValues(0.25, 0.25, 0.4);
     this.trackShininess = 500;
+
+    this.bump = new sg.textures.Diffuse(
+      this.context,
+      "bump-metal",
+      {repeat: true});
   };
 
   sg.objects.Track.prototype.draw = function(shader, v, m) {
@@ -77,6 +82,7 @@ sg.objects = sg.objects || {};
     shader.setDiffuse(this.trackDiffuse);
     shader.setSpecular(this.trackSpecular);
     shader.setShininess(this.trackShininess);
+    shader.setBumpMap(this.bump);
 
     this.drawExtrusion(this.innerTrack, shader, v, m);
     this.drawExtrusion(this.outerTrack, shader, v, m);
@@ -109,6 +115,33 @@ sg.objects = sg.objects || {};
       false,
       obj.recordLength,
       obj.normalOffset);
+
+    var tangent = shader.getTangentAttribute();
+    this.gl.vertexAttribPointer(
+      tangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.tangentOffset);
+
+    var bitangent = shader.getBitangentAttribute();
+    this.gl.vertexAttribPointer(
+      bitangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.bitangentOffset);
+
+    var uv = shader.getTexCoordsAttribute();
+    this.gl.vertexAttribPointer(
+      uv,
+      2,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.uvOffset);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
     this.gl.drawElements(

@@ -53,7 +53,7 @@ sg.geometries = sg.geometries || {};
         vertices.push(1);
 
         vertices.push(deltaT * j);
-        vertices.push(deltaL * j);
+        vertices.push(deltaL * i);
       }
     }
 

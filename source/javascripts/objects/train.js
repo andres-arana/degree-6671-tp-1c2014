@@ -40,6 +40,16 @@ sg.objects = sg.objects || {};
     this.pistonSpecular = vec3.fromValues(1, 1, 1);
     this.pistonShininess = 100;
 
+    this.bump = new sg.textures.Diffuse(
+      this.context,
+      "bump-metal",
+      {repeat: true});
+
+    this.rustyBump = new sg.textures.Diffuse(
+      this.context,
+      "bump-rusty",
+      {repeat: true});
+
     this.modelMatrix = mat4.create();
     this.derivativeProjection = vec3.create();
     this.yAxisVersor = vec3.fromValues(0, 1, 0);
@@ -123,6 +133,8 @@ sg.objects = sg.objects || {};
     mat4.translate(this.modelMatrix, this.modelMatrix, trainPosition);
     mat4.rotateZ(this.modelMatrix, this.modelMatrix, angle);
     mat4.scale(this.modelMatrix, this.modelMatrix, this.trainScale);
+
+    shader.setBumpMap(this.bump);
 
     shader.setAmbient(this.bodyAmbient);
     shader.setDiffuse(this.bodyDiffuse);
@@ -239,6 +251,7 @@ sg.objects = sg.objects || {};
     shader.setDiffuse(this.roofDiffuse);
     shader.setSpecular(this.roofSpecular);
     shader.setShininess(this.roofShininess);
+    shader.setBumpMap(this.rustyBump);
 
     mat4.copy(this.m, this.modelMatrix);
     mat4.translate(this.m, this.m, this.roofTranslation);
@@ -337,6 +350,33 @@ sg.objects = sg.objects || {};
       false,
       obj.recordLength,
       obj.normalOffset);
+
+    var tangent = shader.getTangentAttribute();
+    this.gl.vertexAttribPointer(
+      tangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.tangentOffset);
+
+    var bitangent = shader.getBitangentAttribute();
+    this.gl.vertexAttribPointer(
+      bitangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.bitangentOffset);
+
+    var uv = shader.getTexCoordsAttribute();
+    this.gl.vertexAttribPointer(
+      uv,
+      2,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.uvOffset);
 
     this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, obj.indexBuffer);
     this.gl.drawElements(

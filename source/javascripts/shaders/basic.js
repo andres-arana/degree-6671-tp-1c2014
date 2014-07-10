@@ -27,11 +27,15 @@ sg.shaders = sg.shaders || {};
 
     this.positionAttribute = this.gl.getAttribLocation(program, "position");
     this.normalAttribute = this.gl.getAttribLocation(program, "normal");
+    this.tangentAttribute = this.gl.getAttribLocation(program, "tangent");
+    this.bitangentAttribute = this.gl.getAttribLocation(program, "bitangent");
+    this.texCoordsAttribute = this.gl.getAttribLocation(program, "texCoords");
 
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
     this.normalUniform = this.gl.getUniformLocation(program, "normalMatrix");
     this.modelUniform = this.gl.getUniformLocation(program, "modelMatrix");
+    this.bumpSampler = this.gl.getUniformLocation(program, "bumpSampler");
 
     this.ambientUniform = this.gl.getUniformLocation(program, "ambientReflectivity");
     this.diffuseUniform = this.gl.getUniformLocation(program, "diffuseReflectivity");
@@ -48,6 +52,9 @@ sg.shaders = sg.shaders || {};
     this.gl.useProgram(this.shader);
     this.gl.enableVertexAttribArray(this.positionAttribute);
     this.gl.enableVertexAttribArray(this.normalAttribute);
+    this.gl.enableVertexAttribArray(this.tangentAttribute);
+    this.gl.enableVertexAttribArray(this.bitangentAttribute);
+    this.gl.enableVertexAttribArray(this.texCoordsAttribute);
     return this;
   };
 
@@ -65,6 +72,11 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Basic.prototype.setNormalMatrix = function(m) {
     this.gl.uniformMatrix3fv(this.normalUniform, false, m);
+  };
+
+  sg.shaders.Basic.prototype.setBumpMap = function(t) {
+    t.bind(0);
+    this.gl.uniform1i(this.bumpSampler, 0);
   };
 
   sg.shaders.Basic.prototype.setAmbient = function(color) {
@@ -102,6 +114,18 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Basic.prototype.getNormalAttribute = function() {
     return this.normalAttribute;
+  };
+
+  sg.shaders.Basic.prototype.getTangentAttribute = function() {
+    return this.tangentAttribute;
+  };
+
+  sg.shaders.Basic.prototype.getBitangentAttribute = function() {
+    return this.bitangentAttribute;
+  };
+
+  sg.shaders.Basic.prototype.getTexCoordsAttribute = function() {
+    return this.texCoordsAttribute;
   };
 
 })();
