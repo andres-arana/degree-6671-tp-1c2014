@@ -11,6 +11,8 @@ sg.cameras = sg.cameras || {};
     this.rho = 0;
     this.theta = 0;
 
+    this.offsetTranslation = vec3.fromValues(0, 0, 9.4);
+
     this.projectionMatrix = mat4.create();
     mat4.perspective(
         this.projectionMatrix,
@@ -81,6 +83,7 @@ sg.cameras = sg.cameras || {};
   };
 
   sg.cameras.TrainFollower.prototype.tick = function(delta) {
-    this.center = this.train.currentPosition();
+    var trainPosition = this.train.currentPosition();
+    vec3.subtract(this.center, trainPosition, this.offsetTranslation);
   };
 })();

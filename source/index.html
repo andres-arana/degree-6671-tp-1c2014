@@ -33,10 +33,13 @@
 
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
+    uniform mat4 modelMatrix;
 
     varying vec2 f_texCoords;
+    varying vec3 f_worldPosition;
 
     void main(void) {
+      f_worldPosition = vec3(modelMatrix * vec4(position, 1.0));
       f_texCoords = texCoords;
       gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     }
@@ -46,10 +49,18 @@
     precision mediump float;
 
     varying vec2 f_texCoords;
+    varying vec3 f_worldPosition;
 
     uniform sampler2D textureSampler;
+    uniform bool useClipping;
+    uniform vec4 clipPlane;
 
     void main(void) {
+      if (useClipping) {
+        if (dot(vec4(f_worldPosition, 1.0), clipPlane) < 0.0) {
+          discard;
+        }
+      }
       gl_FragColor = texture2D(textureSampler, f_texCoords);
     }
   </script>
@@ -61,13 +72,16 @@
 
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
+    uniform mat4 modelMatrix;
     uniform mat3 normalMatrix;
 
     varying vec3 f_position;
     varying vec3 f_normal;
     varying vec2 f_texCoords;
+    varying vec3 f_worldPosition;
 
     void main(void) {
+      f_worldPosition = vec3(modelMatrix * vec4(position, 1.0));
       f_position = vec3(modelViewMatrix * vec4(position, 1.0));
       f_normal = normalize(normalMatrix * normal);
       f_texCoords = texCoords;
@@ -82,11 +96,19 @@
     varying vec3 f_position;
     varying vec3 f_normal;
     varying vec2 f_texCoords;
+    varying vec3 f_worldPosition;
 
     uniform vec3 lightDirection;
     uniform sampler2D textureSampler;
+    uniform bool useClipping;
+    uniform vec4 clipPlane;
 
     void main(void) {
+      if (useClipping) {
+        if (dot(vec4(f_worldPosition, 1.0), clipPlane) < 0.0) {
+          discard;
+        }
+      }
       vec3 normal = normalize(f_normal);
       vec3 light = normalize(lightDirection);
 
@@ -107,13 +129,16 @@
 
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
+    uniform mat4 modelMatrix;
     uniform mat3 normalMatrix;
 
     varying vec3 f_position;
     varying vec3 f_normal;
     varying vec2 f_texCoords;
+    varying vec3 f_worldPosition;
 
     void main(void) {
+      f_worldPosition = vec3(modelMatrix * vec4(position, 1.0));
       f_position = vec3(modelViewMatrix * vec4(position, 1.0));
       f_normal = normalize(normalMatrix * normal);
       f_texCoords = texCoords;
@@ -128,14 +153,22 @@
     varying vec3 f_position;
     varying vec3 f_normal;
     varying vec2 f_texCoords;
+    varying vec3 f_worldPosition;
 
     uniform vec3 specularReflectivity;
     uniform float shininess;
 
     uniform vec3 lightDirection;
     uniform sampler2D textureSampler;
+    uniform bool useClipping;
+    uniform vec4 clipPlane;
 
     void main(void) {
+      if (useClipping) {
+        if (dot(vec4(f_worldPosition, 1.0), clipPlane) < 0.0) {
+          discard;
+        }
+      }
       vec3 normal = normalize(f_normal);
       vec3 eye = normalize(f_position - vec3(0.0, 0.0, 0.0));
       vec3 light = normalize(lightDirection);
@@ -168,18 +201,20 @@
 
     varying vec3 f_position;
     varying vec3 f_normal;
+    varying vec3 f_especularNormal;
     varying vec3 f_tangent;
     varying vec3 f_bitangent;
     varying vec2 f_texCoords;
+    varying vec2 f_reflectionTexCoords;
+
+    const float s = 0.5;
+    const float u = 2.0;
+    const float A = 0.05;
+    const float t = 0.5;
+    const float v = 2.0;
+    const float B = 0.05;
 
     void main(void) {
-      float s = 0.5;
-      float u = 2.0;
-      float A = 0.05;
-
-      float t = 0.5;
-      float v = 2.0;
-      float B = 0.05;
 
       float z = A * sin(s * position.x + u * phase) + B * sin(t * position.y + v * phase);
       vec3 actualPosition = vec3(position.x, position.y, position.z + z);
@@ -193,10 +228,13 @@
       vec3 actualBitangent = vec3(0, 1, dfdy);
       f_bitangent = normalMatrix * normalize(actualBitangent);
 
-      vec3 actualNormal = cross(actualTangent, actualBitangent);
+      vec3 actualNormal = vec3(-dfdx, dfdy, 1);
       f_normal = normalMatrix * normalize(actualNormal);
 
-      f_texCoords = vec2(position.x / 5.0 + phase / 5.0, position.y / 5.0 + phase / 3.0);
+      f_especularNormal = normalMatrix * vec3(0, 0, 1);
+
+      f_texCoords = vec2(position.x / 2.0 + phase / 5.0, position.y / 5.0 + phase / 3.0);
+      f_reflectionTexCoords = vec2(f_position.x / 80.0 + 0.5, f_position.y / 80.0 + 0.5);
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(actualPosition, 1.0);
     }
@@ -207,9 +245,11 @@
 
     varying vec3 f_position;
     varying vec3 f_normal;
+    varying vec3 f_especularNormal;
     varying vec3 f_tangent;
     varying vec3 f_bitangent;
     varying vec2 f_texCoords;
+    varying vec2 f_reflectionTexCoords;
 
     uniform vec3 ambientReflectivity;
     uniform vec3 diffuseReflectivity;
@@ -217,7 +257,8 @@
     uniform float shininess;
 
     uniform vec3 lightDirection;
-    uniform sampler2D textureSampler;
+    uniform sampler2D bumpSampler;
+    uniform sampler2D reflectionSampler;
 
     void main(void) {
       vec3 normal = normalize(f_normal);
@@ -226,22 +267,32 @@
       vec3 eye = normalize(f_position - vec3(0.0, 0.0, 0.0));
       vec3 light = normalize(lightDirection);
 
-      vec3 bumpMapValue = vec3(texture2D(textureSampler, f_texCoords));
-      vec3 actualNormal = normalize(tangent * bumpMapValue.r + bitangent * bumpMapValue.g + normal * bumpMapValue.b);
+      vec3 bumpMapValue = vec3(texture2D(bumpSampler, f_texCoords));
+
+      vec3 actualNormal = normalize(
+        tangent * bumpMapValue.r +
+        bitangent * bumpMapValue.g +
+         normal * bumpMapValue.b);
+
+      vec3 flatNormal = actualNormal - dot(actualNormal, f_especularNormal) * f_especularNormal;
+      vec2 reflectionOffset = flatNormal.xy * 0.1;
+
+      vec3 reflectionValue = vec3(texture2D(reflectionSampler, f_reflectionTexCoords + reflectionOffset));
 
       float lambert = dot(actualNormal, light);
 
-      vec3 ambient = ambientReflectivity;
-      vec3 diffuse = diffuseReflectivity * max(0.0, lambert);
+      vec3 ambient = 0.5 * (ambientReflectivity + 0.75 * reflectionValue);
+      vec3 diffuse = 0.5 * (diffuseReflectivity + 0.75 * reflectionValue) * max(0.0, lambert);
       vec3 specular;
 
       if (lambert < 0.0) {
         specular = vec3(0.0, 0.0, 0.0);
       } else {
-        specular = specularReflectivity * pow(max(0.0, dot(reflect(light, actualNormal), eye)), shininess);
+        specular = specularReflectivity *
+          pow(max(0.0, dot(reflect(light, actualNormal), eye)), shininess);
       }
 
-      gl_FragColor = vec4(ambient + diffuse + specular, 0.95);
+      gl_FragColor = vec4(ambient + diffuse + specular, 0.65);
     }
   </script>
 
@@ -251,12 +302,15 @@
 
     uniform mat4 projectionMatrix;
     uniform mat4 modelViewMatrix;
+    uniform mat4 modelMatrix;
     uniform mat3 normalMatrix;
 
     varying vec3 f_position;
     varying vec3 f_normal;
+    varying vec3 f_worldPosition;
 
     void main(void) {
+      f_worldPosition = vec3(modelMatrix * vec4(position, 1.0));
       f_position = vec3(modelViewMatrix * vec4(position, 1.0));
       f_normal = normalize(normalMatrix * normal);
 
@@ -269,6 +323,7 @@
 
     varying vec3 f_position;
     varying vec3 f_normal;
+    varying vec3 f_worldPosition;
 
     uniform vec3 ambientReflectivity;
     uniform vec3 diffuseReflectivity;
@@ -276,8 +331,15 @@
     uniform float shininess;
 
     uniform vec3 lightDirection;
+    uniform bool useClipping;
+    uniform vec4 clipPlane;
 
     void main(void) {
+      if (useClipping) {
+        if (dot(vec4(f_worldPosition, 1.0), clipPlane) < 0.0) {
+          discard;
+        }
+      }
       vec3 normal = normalize(f_normal);
       vec3 eye = normalize(f_position - vec3(0.0, 0.0, 0.0));
       vec3 light = normalize(lightDirection);
@@ -340,6 +402,7 @@
 
   <!-- Textures -->
   <script src="javascripts/textures/diffuse.js"></script>
+  <script src="javascripts/textures/render.js"></script>
 
   <!-- Objects -->
   <script src="javascripts/objects/terrain.js"></script>

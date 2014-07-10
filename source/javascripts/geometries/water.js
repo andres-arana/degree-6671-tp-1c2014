@@ -3,13 +3,16 @@ sg.geometries = sg.geometries || {};
 
 (function() {
 
+  var WIDTH = 40;
+  var HEIGHT = 40;
+
   sg.geometries.Water = function(context) {
     this.context = context;
     this.gl = context.gl;
 
     var vertices = [];
-    for (i = -50; i <= 50; i++) {
-      for (j = -50; j <= 50; j++) {
+    for (i = -WIDTH; i <= WIDTH; i++) {
+      for (j = -HEIGHT; j <= HEIGHT; j++) {
         vertices.push(i);
         vertices.push(j);
         vertices.push(0);
@@ -33,7 +36,7 @@ sg.geometries = sg.geometries || {};
 
     var buffers = new sg.geometries.BufferGenerator(this.gl);
     this.vertexBuffer = buffers.buildVertexBuffer(vertices);
-    this.indexBuffer =  buffers.buildOpenTriangularMeshIndices(101, 101);
+    this.indexBuffer =  buffers.buildOpenTriangularMeshIndices(2 * WIDTH + 1, 2 * HEIGHT + 1);
 
     // Buffer descriptors
     this.recordLength = 56;

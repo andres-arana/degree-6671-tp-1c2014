@@ -84,6 +84,7 @@ sg.objects = sg.objects || {};
 
   sg.objects.Track.prototype.drawExtrusion = function(obj, shader, v, m) {
     mat4.multiply(this.modelViewMatrix, v, m);
+    shader.setModelMatrix(m);
     shader.setModelViewMatrix(this.modelViewMatrix)
 
     mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);

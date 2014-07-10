@@ -22,10 +22,10 @@ sg.objects = sg.objects || {};
     ]);
 
     var baseProfile = new sg.paths.Bezier(vec2,
-      vec2.fromValues(-4, 0),
+      vec2.fromValues(-4, 0.65),
       vec2.fromValues(-3.95, 3),
       vec2.fromValues(3.95, 3),
-      vec2.fromValues(4, 0));
+      vec2.fromValues(4, 0.65));
 
     var baseTransform = mat4.translate(
       mat4.create(),
@@ -56,6 +56,7 @@ sg.objects = sg.objects || {};
 
   sg.objects.TrackBase.prototype.drawExtrusion = function(obj, shader, v, m) {
     mat4.multiply(this.modelViewMatrix, v, m);
+    shader.setModelMatrix(m);
     shader.setModelViewMatrix(this.modelViewMatrix)
 
     mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);

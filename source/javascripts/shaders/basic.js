@@ -31,12 +31,15 @@ sg.shaders = sg.shaders || {};
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
     this.normalUniform = this.gl.getUniformLocation(program, "normalMatrix");
+    this.modelUniform = this.gl.getUniformLocation(program, "modelMatrix");
 
     this.ambientUniform = this.gl.getUniformLocation(program, "ambientReflectivity");
     this.diffuseUniform = this.gl.getUniformLocation(program, "diffuseReflectivity");
     this.specularUniform = this.gl.getUniformLocation(program, "specularReflectivity");
     this.shininessUniform = this.gl.getUniformLocation(program, "shininess");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
+    this.useClippingUniform = this.gl.getUniformLocation(program, "useClipping");
+    this.clipPlaneUniform = this.gl.getUniformLocation(program, "clipPlane");
 
     this.shader = program;
   };
@@ -54,6 +57,10 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Basic.prototype.setModelViewMatrix = function(m) {
     this.gl.uniformMatrix4fv(this.modelViewUniform, false, m);
+  };
+
+  sg.shaders.Basic.prototype.setModelMatrix = function(m) {
+    this.gl.uniformMatrix4fv(this.modelUniform, false, m);
   };
 
   sg.shaders.Basic.prototype.setNormalMatrix = function(m) {
@@ -78,6 +85,15 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Basic.prototype.setLightDirection = function(direction) {
     this.gl.uniform3fv(this.lightUniform, direction);
+  };
+
+  sg.shaders.Basic.prototype.useClipPlane = function(v) {
+    this.gl.uniform1i(this.useClippingUniform, true);
+    this.gl.uniform4fv(this.clipPlaneUniform, v);
+  };
+
+  sg.shaders.Basic.prototype.clearClipPlane = function() {
+    this.gl.uniform1i(this.useClippingUniform, false);
   };
 
   sg.shaders.Basic.prototype.getPositionAttribute = function() {

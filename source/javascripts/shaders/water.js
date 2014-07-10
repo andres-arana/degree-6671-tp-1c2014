@@ -37,7 +37,8 @@ sg.shaders = sg.shaders || {};
     this.specularUniform = this.gl.getUniformLocation(program, "specularReflectivity");
     this.shininessUniform = this.gl.getUniformLocation(program, "shininess");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
-    this.samplerUniform = this.gl.getUniformLocation(program, "textureSampler");
+    this.bumpSampler = this.gl.getUniformLocation(program, "bumpSampler");
+    this.reflectionSampler = this.gl.getUniformLocation(program, "reflectionSampler");
 
     this.shader = program;
   };
@@ -85,8 +86,13 @@ sg.shaders = sg.shaders || {};
   };
 
   sg.shaders.Water.prototype.setBumpMap = function(t) {
+    t.bind(1);
+    this.gl.uniform1i(this.bumpSampler, 1);
+  };
+
+  sg.shaders.Water.prototype.setReflection = function(t) {
     t.bind(0);
-    this.gl.uniform1i(this.samplerUniform, 0);
+    this.gl.uniform1i(this.reflectionSampler, 0);
   };
 
   sg.shaders.Water.prototype.getPositionAttribute = function() {

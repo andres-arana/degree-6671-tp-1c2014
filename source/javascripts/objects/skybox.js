@@ -51,7 +51,6 @@ sg.objects = sg.objects || {};
     this.planes.push({texture: texture, transform: mat4.clone(transform)});
 
     this.modelViewMatrix = mat4.create();
-    this.normalMatrix = mat3.create();
   };
 
   sg.objects.Skybox.prototype.draw = function(shader, v, m) {
@@ -65,6 +64,7 @@ sg.objects = sg.objects || {};
 
   sg.objects.Skybox.prototype.drawRectangle = function(obj, shader, v, m) {
     mat4.multiply(this.modelViewMatrix, v, m);
+    shader.setModelMatrix(m);
     shader.setModelViewMatrix(this.modelViewMatrix)
 
     this.gl.bindBuffer(this.gl.ARRAY_BUFFER, obj.vertexBuffer);

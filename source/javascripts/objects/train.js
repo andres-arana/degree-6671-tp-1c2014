@@ -43,7 +43,6 @@ sg.objects = sg.objects || {};
     this.modelMatrix = mat4.create();
     this.derivativeProjection = vec3.create();
     this.yAxisVersor = vec3.fromValues(0, 1, 0);
-    this.trainTrackPosition = vec3.fromValues(0, 0, 9.4);
     this.trainScale = vec3.fromValues(0.2, 0.2, 0.2);
     this.engineContainerScale = vec3.fromValues(5, 5, 5);
     this.engineTopTranslation = vec3.fromValues(5, 0, 0);
@@ -121,7 +120,6 @@ sg.objects = sg.objects || {};
     var rawAngle = vec3.angleBetween(this.derivativeProjection, this.yAxisVersor);
     var angle = (direction * rawAngle) + Math.PI / 2;
 
-    vec3.subtract(trainPosition, trainPosition, this.trainTrackPosition);
     mat4.translate(this.modelMatrix, this.modelMatrix, trainPosition);
     mat4.rotateZ(this.modelMatrix, this.modelMatrix, angle);
     mat4.scale(this.modelMatrix, this.modelMatrix, this.trainScale);
@@ -314,6 +312,7 @@ sg.objects = sg.objects || {};
 
   sg.objects.Train.prototype.drawObject = function(obj, shader, v, m, geometry) {
     mat4.multiply(this.modelViewMatrix, v, m);
+    shader.setModelMatrix(m);
     shader.setModelViewMatrix(this.modelViewMatrix)
 
     mat3.normalFromMat4(this.normalMatrix, this.modelViewMatrix);

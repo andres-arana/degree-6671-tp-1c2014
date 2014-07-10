@@ -21,6 +21,9 @@ sg.objects = sg.objects || {};
       this.context,
       "bump-water",
       {repeat: true});
+
+    this.reflection = new sg.textures.Render(
+      this.context);
   };
 
   sg.objects.Water.prototype.draw = function(shader, v, m) {
@@ -30,8 +33,9 @@ sg.objects = sg.objects || {};
     shader.setShininess(this.waterShininess);
     shader.setPhase(this.phase);
     shader.setBumpMap(this.bumpMap);
+    shader.setReflection(this.reflection);
 
-    this.gl.blendFunc(this.gl.SRC_COLOR, this.gl.DST_COLOR);
+    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     this.gl.enable(this.gl.BLEND);
     this.drawWater(this.water, shader, v, m);
     this.gl.disable(this.gl.BLEND);
@@ -39,6 +43,17 @@ sg.objects = sg.objects || {};
 
   sg.objects.Water.prototype.tick = function(delta) {
     this.phase += delta;
+  };
+
+  sg.objects.Water.prototype.useReflectionFramebuffer = function() {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.reflection.frameBuffer);
+    this.gl.viewport(0, 0, this.reflection.frameBuffer.width, this.reflection.frameBuffer.height);
+    this.gl.clearColor(0.7, 0.7, 1.0, 1.0);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+  };
+
+  sg.objects.Water.prototype.clearReflectionFramebuffer = function() {
+    this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
   };
 
   sg.objects.Water.prototype.drawWater = function(obj, shader, v, m) {

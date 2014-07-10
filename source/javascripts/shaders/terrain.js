@@ -34,6 +34,9 @@ sg.shaders = sg.shaders || {};
     this.normalUniform = this.gl.getUniformLocation(program, "normalMatrix");
     this.samplerUniform = this.gl.getUniformLocation(program, "textureSampler");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
+    this.useClippingUniform = this.gl.getUniformLocation(program, "useClipping");
+    this.clipPlaneUniform = this.gl.getUniformLocation(program, "clipPlane");
+    this.modelUniform = this.gl.getUniformLocation(program, "modelMatrix");
 
     this.shader = program;
   };
@@ -54,6 +57,10 @@ sg.shaders = sg.shaders || {};
     this.gl.uniformMatrix4fv(this.modelViewUniform, false, m);
   };
 
+  sg.shaders.Terrain.prototype.setModelMatrix = function(m) {
+    this.gl.uniformMatrix4fv(this.modelUniform, false, m);
+  };
+
   sg.shaders.Terrain.prototype.setNormalMatrix = function(m) {
     this.gl.uniformMatrix3fv(this.normalUniform, false, m);
   };
@@ -65,6 +72,15 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Terrain.prototype.setLightDirection = function(direction) {
     this.gl.uniform3fv(this.lightUniform, direction);
+  };
+
+  sg.shaders.Terrain.prototype.useClipPlane = function(v) {
+    this.gl.uniform1i(this.useClippingUniform, true);
+    this.gl.uniform4fv(this.clipPlaneUniform, v);
+  };
+
+  sg.shaders.Terrain.prototype.clearClipPlane = function() {
+    this.gl.uniform1i(this.useClippingUniform, false);
   };
 
   sg.shaders.Terrain.prototype.getPositionAttribute = function() {
