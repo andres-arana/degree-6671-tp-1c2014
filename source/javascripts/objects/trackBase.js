@@ -44,12 +44,17 @@ sg.objects = sg.objects || {};
       this.context,
       "texture-train-base",
       {repeat: true});
+    this.baseBump = new sg.textures.Diffuse(
+      this.context,
+      "bump-train-base",
+      {repeat: true});
   };
 
   sg.objects.TrackBase.prototype.draw = function(shader, v, m) {
-    shader.setTexture(this.baseTexture);
     shader.setSpecular(this.baseSpecular);
     shader.setShininess(this.baseShininess);
+    shader.setTexture(this.baseTexture);
+    shader.setBumpMap(this.baseBump);
 
     this.drawExtrusion(this.base, shader, v, m);
   };
@@ -81,6 +86,24 @@ sg.objects = sg.objects || {};
       false,
       obj.recordLength,
       obj.normalOffset);
+
+    var tangent = shader.getTangentAttribute();
+    this.gl.vertexAttribPointer(
+      tangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.tangentOffset);
+
+    var bitangent = shader.getBitangentAttribute();
+    this.gl.vertexAttribPointer(
+      bitangent,
+      3,
+      this.gl.FLOAT,
+      false,
+      obj.recordLength,
+      obj.bitangentOffset);
 
     var uv = shader.getTexCoordsAttribute();
     this.gl.vertexAttribPointer(

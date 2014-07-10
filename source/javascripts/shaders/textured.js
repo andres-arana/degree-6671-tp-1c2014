@@ -27,12 +27,15 @@ sg.shaders = sg.shaders || {};
 
     this.positionAttribute = this.gl.getAttribLocation(program, "position");
     this.normalAttribute = this.gl.getAttribLocation(program, "normal");
+    this.tangentAttribute = this.gl.getAttribLocation(program, "tangent");
+    this.bitangentAttribute = this.gl.getAttribLocation(program, "bitangent");
     this.texCoordsAttribute = this.gl.getAttribLocation(program, "texCoords");
 
     this.projectionUniform = this.gl.getUniformLocation(program, "projectionMatrix");
     this.modelViewUniform = this.gl.getUniformLocation(program, "modelViewMatrix");
     this.normalUniform = this.gl.getUniformLocation(program, "normalMatrix");
     this.samplerUniform = this.gl.getUniformLocation(program, "textureSampler");
+    this.bumpSampler = this.gl.getUniformLocation(program, "bumpSampler");
     this.lightUniform = this.gl.getUniformLocation(program, "lightDirection");
     this.specularUniform = this.gl.getUniformLocation(program, "specularReflectivity");
     this.shininessUniform = this.gl.getUniformLocation(program, "shininess");
@@ -47,6 +50,8 @@ sg.shaders = sg.shaders || {};
     this.gl.useProgram(this.shader);
     this.gl.enableVertexAttribArray(this.positionAttribute);
     this.gl.enableVertexAttribArray(this.normalAttribute);
+    this.gl.enableVertexAttribArray(this.tangentAttribute);
+    this.gl.enableVertexAttribArray(this.bitangentAttribute);
     this.gl.enableVertexAttribArray(this.texCoordsAttribute);
     return this;
   };
@@ -70,6 +75,11 @@ sg.shaders = sg.shaders || {};
   sg.shaders.Textured.prototype.setTexture = function(t) {
     t.bind(0);
     this.gl.uniform1i(this.samplerUniform, 0);
+  };
+
+  sg.shaders.Textured.prototype.setBumpMap = function(t) {
+    t.bind(1);
+    this.gl.uniform1i(this.bumpSampler, 1);
   };
 
   sg.shaders.Textured.prototype.setSpecular = function(color) {
@@ -99,6 +109,14 @@ sg.shaders = sg.shaders || {};
 
   sg.shaders.Textured.prototype.getNormalAttribute = function() {
     return this.normalAttribute;
+  };
+
+  sg.shaders.Textured.prototype.getTangentAttribute = function() {
+    return this.tangentAttribute;
+  };
+
+  sg.shaders.Textured.prototype.getBitangentAttribute = function() {
+    return this.bitangentAttribute;
   };
 
   sg.shaders.Textured.prototype.getTexCoordsAttribute = function() {
